@@ -4,32 +4,31 @@
 ### Author: Fedi Nabli    ###
 #############################
 
-function(add_zig_library target source)
-  set(ARCHIVE ${CMAKE_CURRENT_BINARY_DIR}/${target}.a)
-  set(HEADER ${CMAKE_CURRENT_BINARY_DIR}/${target}.h)
+function(add_zig_library target project_dir)
+  set(ZIG_OUT ${CMAKE_CURRENT_BINARY_DIR}/zig-out CACHE PATH "")
+
+  file(MAKE_DIRECTORY ${ZIG_OUT}/lib)
+  file(MAKE_DIRECTORY ${ZIG_OUT}/include)
 
   add_custom_command(
-    OUTPUT ${ARCHIVE} ${HEADER}
-    COMMAND zig build-lib
-            -O ReleaseFast
-            -femit-h=${HEADER}
-            -femit-bin=${ARCHIVE}
-            -fPIC
-            -target native
-            ${source}
-    DEPENDS ${source}
-    COMMENT "Building Zig static library ${target}"
+    OUTPUT ${ZIG_OUT}/lib/lib${target}.a
+           ${ZIG_OUT}/include/${target}.h
+    COMMAND zig build -Doptimize=ReleaseFast
+            --cache-dir ${CMAKE_CURRENT_BINARY_DIR}/zig-cache
+            --prefix ${ZIG_OUT}
+    WORKING_DIRECTORY ${project_dir}
+    COMMENT "Building Zig project ${target}"
     USES_TERMINAL
     VERBATIM
   )
 
-  add_custom_target(${target}_gen DEPENDS ${ARCHIVE})
+  add_custom_target(${target}_gen DEPENDS ${ZIG_OUT}/lib/lib${target}.a)
 
   add_library(${target} STATIC IMPORTED GLOBAL)
   set_target_properties(${target} PROPERTIES
-    IMPORTED_LOCATION ${ARCHIVE}
-    INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_BINARY_DIR}
+    IMPORTED_LOCATION ${ZIG_OUT}/lib/lib${target}.a
+    INTERFACE_INCLUDE_DIRECTORIES ${ZIG_OUT}/include
   )
 
-  add_dependencies(${target} ${target}_gen)
+    add_dependencies(${target} ${target}_gen)
 endfunction()

@@ -9,7 +9,7 @@ add_library(ai_engine STATIC
 )
 
 target_link_libraries(ai_engine
-  PRIVATE
+  PUBLIC
       csv json synj # Zig parsers
       synapse_math # Rust math library
 )

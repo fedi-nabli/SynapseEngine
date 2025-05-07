@@ -7,6 +7,10 @@
 cmake_minimum_required(VERSION 3.20)
 project(synapse LANGUAGES C CXX)
 
+if (APPLE)
+  set(CMAKE_OSX_DEPLOYMENT_TARGET "15.4.1" CACHE STRING "" FORCE)
+endif()
+
 # -- Fetch Corrosion (Crago <-> CMake)
 include(FetchContent)
 FetchContent_Declare(
@@ -20,11 +24,17 @@ FetchContent_MakeAvailable(Corrosion)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 include(AddZig)
 include(AddScriptTests)
+include(CopyMathHeader)
+
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/include/math)
 
 # -- Rust Crate (staticlib)
 corrosion_import_crate(
   MANIFEST_PATH ${CMAKE_SOURCE_DIR}/synapse_math/Cargo.toml
 )
+
+copy_math_header(synapse_math "synapse_math" ${CMAKE_SOURCE_DIR}/synapse_math/include)
+target_include_directories(synapse_math INTERFACE ${CMAKE_BINARY_DIR}/include)
 
 # -- Zig libraries
 add_subdirectory(csv_parser)

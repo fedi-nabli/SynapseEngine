@@ -4,4 +4,4 @@
 ### Author: Fedi Nabli    ###
 #############################
 
-add_zig_library(json ${CMAKE_CURRENT_SOURCE_DIR}/src/root.zig)
+add_zig_library(json ${CMAKE_CURRENT_SOURCE_DIR})
