@@ -33,7 +33,7 @@ corrosion_import_crate(
   MANIFEST_PATH ${CMAKE_SOURCE_DIR}/synapse_math/Cargo.toml
 )
 
-copy_math_header(synapse_math "synapse_math" ${CMAKE_SOURCE_DIR}/synapse_math/include)
+copy_math_header(synapse_math "synapse_math" ${CMAKE_SOURCE_DIR}/synapse_math/include/math)
 target_include_directories(synapse_math INTERFACE ${CMAKE_BINARY_DIR}/include)
 
 # -- Zig libraries

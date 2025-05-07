@@ -6,8 +6,6 @@
 
 #include "math/synapse_math.h"
 
-extern int add(int x, int y);
-
 int main()
 {
   std::cout << "Hello World!" << std::endl;
