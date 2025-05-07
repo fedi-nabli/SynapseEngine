@@ -24,4 +24,6 @@ set_property(TARGET ai_engine PROPERTY CXX_STANDARD 17)
 # final executable
 add_executable(synapse src/main.cc)
 target_link_libraries(synapse PRIVATE ai_engine)
-target_link_options(synapse PRIVATE -Wl,-no_warn_duplicate_libraries)
+if (APPLE)
+  target_link_options(synapse PRIVATE -Wl,-no_warn_duplicate_libraries)
+endif()
