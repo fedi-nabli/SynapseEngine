@@ -4,6 +4,9 @@
 # > CMake / Ninja / XCode
 
 build/*
+bin/*
+build/
+bin/
 cmake-build-/*
 CMakeFiles/
 CMakeCache.txt

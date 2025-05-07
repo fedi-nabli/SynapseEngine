@@ -1,6 +1,24 @@
 use strict;
 use warnings;
 
+my $os = `uname -s`;
+chomp($os);
+my $installer = "";
+
+if ($os eq "Linux")
+{
+  $installer = "sudo dnf install -y";
+}
+elsif ($os eq "Darwin")
+{
+  $installer = "brew install";
+}
+else
+{
+  print "Unsupported OS: $os\n";
+  exit 1;
+}
+
 # List of required cli tools
 my @tools = ("git", "cmake", "make", "ninja");
 
@@ -17,9 +35,15 @@ foreach my $tool (@tools)
   else
   {
     print "$tool is not installed. Trying to install it now...\n";
-    system("brew install $tool") == 0
-      or die "system failed to install $tool: $?\n";
+    my $install_result = system("$installer $tool");
+
+    if ($install_result != 0)
+    {
+      print "Error: Failed to install $tool. Exiting...\n";
+      exit 1;
+    }
   }
 }
 
 print "Your system should be configured now and you can proceed to building\n";
+exit 0;
