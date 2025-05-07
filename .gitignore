@@ -1,0 +1,42 @@
+#--------------------------------------
+# SynapseEngine workspace
+#--------------------------------------
+# > CMake / Ninja / XCode
+
+build/*
+cmake-build-/*
+CMakeFiles/
+CMakeCache.txt
+Testing/
+compile_commands.json
+Makefile
+*.ninja
+*.ninja_deps
+*.ninja_log
+.DS_Store
+
+# > Zig artifacts
+.zig-cache/
+zig-out/
+*.o.zig
+
+# > Rust
+synapse_math/target/
+**/Cargo.lock
+
+# > Python / Perl
+.env/
+.venv/
+__pycache__/
+*.py[cod]
+
+# > IDE / editor folders
+.vscode/
+.idea/
+*.code-workspace
+*.swp
+*.swo
+*.bak
+Tags
+CMakeSettings.json
+CMakeUserPresets.json
