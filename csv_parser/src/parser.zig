@@ -24,7 +24,11 @@ pub const ParserResponse = struct {
 
 pub fn csv_parser_init(allocator: std.mem.Allocator, sep: u8) CSV {
     var csv = CSV.init_default();
-    csv.seperator = if (sep != 0) sep else ',';
+    csv.seperator = switch (sep) {
+        ',' => ',',
+        '\t' => '\t',
+        else => ',',
+    };
     const term = allocator.dupeZ(u8, "\n") catch return csv;
     csv.terminator = term;
     return csv;
@@ -60,16 +64,16 @@ fn split_line(
 
 fn parser_parse_number(field: []const u8) !Number {
     const trimmed = std.mem.trim(u8, field, " ");
-    if (trimmed.len == 0 or std.mem.eql(u8, field, "null") or std.mem.eql(u8, field, "NULL")) {
+    if (trimmed.len == 0 or std.mem.eql(u8, trimmed, "null") or std.mem.eql(u8, trimmed, "NULL")) {
         return Number{ .value = .{ .int_val = 0 }, .dtype = .INTEGER };
     }
 
-    const i_res = std.fmt.parseInt(i64, field, 10) catch null;
+    const i_res = std.fmt.parseInt(i64, trimmed, 10) catch null;
     if (i_res) |i| {
         return Number{ .value = .{ .int_val = i }, .dtype = .INTEGER };
     }
 
-    const f_res = std.fmt.parseFloat(f64, field) catch null;
+    const f_res = std.fmt.parseFloat(f64, trimmed) catch null;
     if (f_res) |f| {
         return Number{ .value = .{ .float_val = f }, .dtype = .FLOAT };
     }
@@ -114,11 +118,24 @@ fn parser_parse_row(
     return Row{ .values = try vals.toOwnedSlice(), .num_cols = fields.len };
 }
 
+fn validate_seperator(buffer: []const u8) u8 {
+    var comma_count: usize = 0;
+    var tab_count: usize = 0;
+
+    for (buffer) |c| {
+        if (c == ',') comma_count += 1;
+        if (c == '\t') tab_count += 1;
+    }
+
+    return if (tab_count > comma_count) '\t' else ',';
+}
+
 pub fn parser_parse_body(
     allocator: std.mem.Allocator,
     csv: *CSV,
     buffer: []const u8,
 ) !void {
+    csv.seperator = validate_seperator(buffer);
     var row_list = std.ArrayList(Row).init(allocator);
 
     var lines = std.ArrayList([]const u8).init(allocator);
