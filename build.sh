@@ -31,7 +31,9 @@ build_project() {
   cmake -S . -B build -G Ninja
   cmake --build build
   mkdir -p bin
+  echo "Copying final binary to bin directory..."
   cp build/ai_engine/synapse bin/synapse
+  echo "Type ./bin/synapse to run the project"
 }
 
 cleanup() {

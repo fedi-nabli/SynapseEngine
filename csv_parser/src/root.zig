@@ -21,7 +21,6 @@ pub export fn csv_parser_parse(
     const buf = buffer_ptr[0..buffer_len];
     const csv_ptr = global_allocator.create(CSV) catch return null;
     csv_ptr.* = parser.csv_parser_init(global_allocator, sep);
-    std.debug.print("sizeof CSV struct Zig {d}\n", .{@sizeOf(CSV)});
 
     parser.parser_parse_body(global_allocator, csv_ptr, buf) catch |err| {
         std.debug.print("Error in parser_parse_body: {}\n", .{err});

@@ -1,5 +1,6 @@
 #include <cstring>
 #include <iostream>
+#include <fstream>
 
 #include "csv.h"
 #include "json.h"
@@ -11,10 +12,23 @@ int main()
 {
   std::cout << "Hello World!" << std::endl;
 
-  const char* csv_file = "Age,Score\n25,95.5\n30,98.2\n22,87.9\n";
+  std::string csv_path = "./tests/test.csv";
+  std::ifstream file(csv_path, std::ios::binary | std::ios::ate);
+  if (!file)
+  {
+    std::cerr << "Error opening file: " << csv_path << std::endl;
+    return -1;
+  }
+  std::streamsize size = file.tellg();
+  file.seekg(0, std::ios::beg);
+
+  char* csv_file = new char[size];
+  file.read(csv_file, size);
+  const char* buffer = csv_file;
+
   size_t len = strlen(csv_file);
   std::cout << "Testing CSV parser with data:\n" << csv_file << std::endl;
-  CSV* csv = csv_parser_parse(csv_file, len, 0);
+  CSV* csv = csv_parser_parse(buffer, len, 0);
   if (csv == NULL)
   {
     std::cout << "ERROR: Failed to parse CSV data" << std::endl;
