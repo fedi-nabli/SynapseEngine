@@ -4,7 +4,7 @@
 //
 // Author: Fedi Nabli
 // Date: 8 May 2025
-// Last Modified: 8 May 2025
+// Last Modified: 9 May 2025
 
 pub const ParserErrors = error{
     OK,

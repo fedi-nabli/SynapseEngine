@@ -26,8 +26,7 @@ pub export fn csv_parser_parse(
     const csv_ptr = global_allocator.create(CSV) catch return null;
     csv_ptr.* = parser.csv_parser_init(global_allocator, sep);
 
-    parser.parser_parse_body(global_allocator, csv_ptr, buf) catch |err| {
-        std.debug.print("Error in parser_parse_body: {}\n", .{err});
+    parser.parser_parse_body(global_allocator, csv_ptr, buf) catch {
         global_allocator.destroy(csv_ptr);
         return null;
     };
@@ -89,5 +88,3 @@ pub fn csv_parser_deinit() bool {
     //Check for leaks and clean up the allocator
     return gpa.deinit();
 }
-
-test "basic add functionality" {}

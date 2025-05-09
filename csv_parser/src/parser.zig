@@ -4,7 +4,7 @@
 //
 // Author: Fedi Nabli
 // Date: 8 May 2025
-// Last Modified: 8 May 2025
+// Last Modified: 9 May 2025
 
 const std = @import("std");
 
@@ -91,7 +91,11 @@ fn parser_parse_row(
 
     var vals = std.ArrayList(Number).init(allocator);
     for (fields) |f| {
-        const num = try parser_parse_number(f);
+        const num = parser_parse_number(f) catch |err| {
+            const stdout = std.io.getStdOut().writer();
+            stdout.print("Error parsing CSV, expected only numerical data, instead got: {s}\n", .{f}) catch {};
+            return err;
+        };
         try vals.append(num);
     }
 
@@ -129,7 +133,8 @@ pub fn parser_parse_body(
 
     for (lines.items, 0..) |line, i| {
         if (line.len == 0) {
-            std.debug.print("Skipping empty line {d}\n", .{i});
+            const stdout = std.io.getStdOut().writer();
+            stdout.print("Skipping empty line {d}\n", .{i}) catch {};
             continue;
         }
 
