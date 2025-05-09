@@ -42,16 +42,28 @@ fn split_line(
         if (c == '"') {
             in_quotes = !in_quotes;
         } else if (c == sep and !in_quotes) {
-            try parts.append(line[start..idx]);
+            if (idx == start) {
+                try parts.append("");
+            } else {
+                try parts.append(line[start..idx]);
+            }
             start = idx + 1;
         }
     }
 
-    try parts.append(line[start..]);
+    if (start < line.len) {
+        try parts.append(line[start..]);
+    }
+
     return parts.toOwnedSlice();
 }
 
 fn parser_parse_number(field: []const u8) !Number {
+    const trimmed = std.mem.trim(u8, field, " ");
+    if (trimmed.len == 0 or std.mem.eql(u8, field, "null") or std.mem.eql(u8, field, "NULL")) {
+        return Number{ .value = .{ .int_val = 0 }, .dtype = .INTEGER };
+    }
+
     const i_res = std.fmt.parseInt(i64, field, 10) catch null;
     if (i_res) |i| {
         return Number{ .value = .{ .int_val = i }, .dtype = .INTEGER };
