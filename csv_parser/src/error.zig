@@ -9,4 +9,6 @@
 pub const ParserErrors = error{
     OK,
     ParseError,
+    InvalidColCountPlus,
+    InvalidColCountMinus,
 };

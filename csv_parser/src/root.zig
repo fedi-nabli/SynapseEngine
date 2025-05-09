@@ -6,7 +6,11 @@ const Header = @import("csv.zig").Header;
 const Data = @import("csv.zig").Data;
 const Row = @import("csv.zig").Row;
 const Number = @import("csv.zig").Number;
+
+const ParserErrors = @import("error.zig").ParserErrors;
+
 const parser = @import("parser.zig");
+const ParserResponse = parser.ParserResponse;
 
 // Global static allocator
 var gpa = std.heap.GeneralPurposeAllocator(.{}){};
@@ -27,6 +31,20 @@ pub export fn csv_parser_parse(
         global_allocator.destroy(csv_ptr);
         return null;
     };
+
+    const res: ParserResponse = parser.parser_validate_data_length(csv_ptr);
+    if (res.valid == false) {
+        const stdout = std.io.getStdOut().writer();
+        if (res.perror == ParserErrors.InvalidColCountPlus) {
+            stdout.print("CSV Error: Too many columns for row {?d}, row_col_num: {?d}, should be: {d}\n", .{ res.row, res.length, csv_ptr.header.num_cols }) catch return null;
+        }
+
+        if (res.perror == ParserErrors.InvalidColCountMinus) {
+            stdout.print("CSV Error: Too few columns for row {?d}, row_col_num: {?d}, should be: {d}\n", .{ res.row, res.length, csv_ptr.header.num_cols }) catch return null;
+        }
+
+        return null;
+    }
 
     return csv_ptr;
 }

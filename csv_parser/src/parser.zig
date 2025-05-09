@@ -15,6 +15,13 @@ const Number = csv_structs.Number;
 
 const ParserErrors = @import("error.zig").ParserErrors;
 
+pub const ParserResponse = struct {
+    valid: bool,
+    row: ?usize,
+    length: ?usize,
+    perror: ParserErrors,
+};
+
 pub fn csv_parser_init(allocator: std.mem.Allocator, sep: u8) CSV {
     var csv = CSV.init_default();
     csv.seperator = if (sep != 0) sep else ',';
@@ -136,4 +143,34 @@ pub fn parser_parse_body(
 
     csv.data.num_rows = row_list.items.len;
     csv.data.rows = try row_list.toOwnedSlice();
+}
+
+pub fn parser_validate_data_length(csv: *CSV) ParserResponse {
+    const num_cols = csv.header.num_cols;
+    var res: ParserResponse = .{
+        .valid = true,
+        .row = null,
+        .length = null,
+        .perror = ParserErrors.OK,
+    };
+
+    for (csv.data.rows, 0..csv.data.num_rows) |row, i| {
+        if (row.num_cols > num_cols) {
+            res.valid = false;
+            res.row = i + 1;
+            res.length = row.num_cols;
+            res.perror = ParserErrors.InvalidColCountPlus;
+            return res;
+        }
+
+        if (row.num_cols < num_cols) {
+            res.valid = false;
+            res.row = i + 1;
+            res.length = row.num_cols;
+            res.perror = ParserErrors.InvalidColCountMinus;
+            return res;
+        }
+    }
+
+    return res;
 }
