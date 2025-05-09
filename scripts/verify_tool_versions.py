@@ -19,9 +19,11 @@ def check_program_version(program: str, min_version: str) -> None:
         print(f"{program} is version {current_version}, which meets or exceeds {min_version}")
       else:
         print(f"{program} version {current_version} is lower than the expected {min_version}")
+        exit(1)
 
     else:
       print(f"Could not determine {program} version.")
+      exit(1)
 
   except FileNotFoundError:
     print(f"{program} is not installed or not in the PATH.")

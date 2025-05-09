@@ -13,6 +13,12 @@ check_tools() {
       exit 1
     fi
   fi
+
+  python3 ./scripts/verify_tool_versions.py
+  if [ $? -ne 0 ]; then
+    echo "There are mismatch for tools versions, please check the log and update you packages in order to build this project..."
+    exit 1
+  fi
 }
 
 build_project() {
