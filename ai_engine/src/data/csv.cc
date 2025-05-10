@@ -41,6 +41,25 @@ namespace SynapseParser
     delete[] csv_data;
   }
 
+  bool ICSV::Validate()
+  {
+    // Check if we have any data
+    if (m_Data.empty() || m_NumCols == 0)
+      return false;
+
+    // Check is header size matches column count
+    if (m_Header.size() != m_NumCols)
+      return false;
+
+    for (size_t i = 0; i < m_Data.size(); i++)
+    {
+      if (m_Data[i].size() != m_NumCols)
+        return false;
+    }
+
+    return true;
+  }
+
   void ICSV::PrintStats()
   {
     std::cout << "\nParsed CSV:" << std::endl;

@@ -32,6 +32,7 @@ namespace SynapseParser
       ~ICSV() {};
 
       void Parse();
+      bool Validate();
 
     private:
       void PrintStats();
