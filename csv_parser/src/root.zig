@@ -1,3 +1,11 @@
+// root.zig - Root file for CSV Parser
+// This file contains the main functions for parsing and freeing CSV data,
+// as well as managing the global allocator.
+//
+// Author: Fedi Nabli
+// Date: 8 May 2025
+// Last Modified: 9 May 2025
+
 const std = @import("std");
 const testing = std.testing;
 

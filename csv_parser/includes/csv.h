@@ -1,3 +1,16 @@
+/*
+ * csv.h - Header file for CSV parsing library
+ *
+ * This file defines the structures and functions used for parsing CSV files.
+ * It includes support for handling headers, rows, and data values of different
+ * types (integer and float). The library provides functionality to parse a CSV
+ * buffer and manage the parsed data.
+ * 
+ * Author: Fedi Nabli
+ * Date: 8 May 2025
+ * Last Modified: 9 May 2025
+ */
+
 #ifndef __CSV_H_
 #define __CSV_H_
 

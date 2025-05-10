@@ -1,3 +1,13 @@
+/*
+ * csv.cc - AI Engine C++ CSV Class Implementation
+ * 
+ * This file implements the C++ CSV Class' functions
+ * 
+ * Author: Fedi Nabli
+ * Date: 10 May 2025
+ * Last Updated: 10 May 2025
+ */
+
 #include "data/csv.hpp"
 
 #include <fstream>
@@ -126,6 +136,7 @@ namespace SynapseParser
     this->m_Seperator = csv->seperator;
     this->m_NumCols = csv->header.num_cols;
     this->m_NumRows = csv->data.num_rows;
+    this->m_Terminator = std::string(csv->terminator);
 
     // Clear existing header data
     m_Header.clear();

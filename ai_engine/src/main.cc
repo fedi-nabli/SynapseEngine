@@ -1,3 +1,14 @@
+/*
+ * main.cc - AI Engine C++ Entry point
+ * 
+ * This file implements the main function for
+ * synapse binary and is the orchestrator of the project
+ * 
+ * Author: Fedi Nabli
+ * Date: 8 May 2025
+ * Last Updated: 10 May 2025
+ */
+
 #include "iostream"
 
 #include "data/csv.hpp"

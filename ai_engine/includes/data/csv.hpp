@@ -1,3 +1,13 @@
+/*
+ * csv.hpp - AI Engine C++ CSV Class Header
+ * 
+ * This file defines the C++ CSV Class and function interfaces
+ * 
+ * Author: Fedi Nabli
+ * Date: 10 May 2025
+ * Last Updated: 10 May 2025
+ */
+
 #pragma once
 
 #include <string>
