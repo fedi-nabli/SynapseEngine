@@ -54,6 +54,59 @@ batch_size = NULL;
 early_stop = { "patience": 5 };
 ```
 
+## Build
+
+This project uses CMake with Ninja as a built system with C++, Zig and Rust.
+
+To build the the project you need to have a C/C++ compiler, zig and rust installed with python and perl preferably.
+
+In order to build the project and check for dependencies and tools versions, run:
+
+```bash
+chmod +x ./build.sh
+./build.sh
+```
+
+The script will check for dependencies, tries to install them and check the versions of tools before starting the actual build. It then puts the final binary into '/bin/synapse'
+
+To test the program, run:
+
+```bash
+./bin/synapse
+```
+
+There are also some helper scripts and commands.
+
+- build.sh offers -d option to clean build directories
+- build.sh offers -v to just verify tools installed and their versions
+- cloc.sh inside the scripts folder offers a summary or languages and their lines of code
+- verify_files.py inside the scripts folder runs through the project to verify if all required files are available in the right directories.
+
+To clean the project, run:
+
+```bash
+./build.sh -d
+```
+
+To verify the tools needed by the project, run:
+
+```bash
+./build.sh -v
+```
+
+To see code stats, run:
+
+```bash
+chmod +x ./scripts/cloc.sh
+./scripts/cloc.sh
+```
+
+To verify project files, run:
+
+```bash
+python3 ./scripts/verify_files.py
+```
+
 ## Contact
 
 If you have any questions or need more details please don't hesitate to contact me at:
