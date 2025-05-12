@@ -16,4 +16,9 @@ pub const JsonParserErrors = error{
     ArrayParseError,
     TrainlingComma,
     UnexpectedEndToken,
+    EmptyStatement,
+    MissingColon,
+    EmptyValue,
+    EmptyKey,
+    InvalidKey,
 };

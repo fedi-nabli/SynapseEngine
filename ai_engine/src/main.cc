@@ -24,7 +24,7 @@ int main()
   SynapseParser::ICSV csv_parser(csv_path);
   csv_parser.Parse();
 
-  const char* buf = "{\"test\": \"working\", \n\"run_id\": \"123_54\"}";
+  const char* buf = "{\"schema_version\": \"0.1.0\", \n\"run_id\": \"123_54\",\n \"model_name\": \"iris flowers\", \n\"model_type\": \"LinearRegression\", \n\"target\": \"flower_class\", \n\"epochs_trained\": 10, \n\"final_loss\": 0.41, \n\"weights\": [3.2, 1.5], \n\"bias\": 32}";
   size_t len = strlen(buf);
   Json* json = json_parser_parse(buf, len);
   json_parser_free(json);
