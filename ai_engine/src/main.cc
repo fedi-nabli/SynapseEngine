@@ -25,6 +25,9 @@ int main()
   csv_parser.Parse();
 
   const char* buf = "{\"schema_version\": \"0.1.0\", \n\"run_id\": \"123_54\", \n\"model_name\": \"iris flowers\", \n\"model_type\": \"LinearRegression\", \n\"target\": \"flower_class\", \n\"epochs_trained\": 10, \n\"final_loss\": 0.41, \n\"weights\": [3.2, 1.5], \n\"bias\": 32}";
+  std::cout << "JSON Data:" << std::endl;
+  std::cout << buf << std::endl;
+  
   size_t len = strlen(buf);
   Json* json = json_parser_parse(buf, len);
   std::cout << "Schema version: " << json->schema_version << std::endl;
@@ -34,7 +37,8 @@ int main()
   std::cout << "Target: " << json->target << std::endl;
   std::cout << "Epochs Trained: " << json->epochs_trained << std::endl;
   std::cout << "Final Loss: " << json->final_loss << std::endl;
-  std::cout << "Weights: " << json->weights << std::endl;
+  std::cout << "Weights[0]: " << json->weights[0] << std::endl;
+  std::cout << "Weights[1]: " << json->weights[1] << std::endl;
   std::cout << "Bias: " << json->bias << std::endl;
   json_parser_free(json);
 

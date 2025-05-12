@@ -116,7 +116,68 @@ fn parser_parse_float(
     };
 }
 
-fn parser_parse_array() !void {}
+fn parser_parse_array(
+    allocator: std.mem.Allocator,
+    value: []const u8,
+    field: *[]f64,
+) !void {
+    const stdout = std.io.getStdOut().writer();
+
+    // Trim whiespace from value
+    var start: usize = 0;
+    var end: usize = value.len;
+
+    while (start < end and is_skip_character(value[start])) : (start += 1) {}
+    while (end > start and is_skip_character(value[end - 1])) : (end -= 1) {}
+
+    const trimmed = value[start..end];
+
+    if (trimmed[0] != '[' or trimmed[trimmed.len - 1] != ']') {
+        try stdout.print("Expected array value, but instead got: {s}\n", .{trimmed});
+        return JsonParserErrors.ArrayParseError;
+    }
+
+    // Get array content
+    const array_content = trimmed[1 .. trimmed.len - 1];
+
+    // Count number of values (comma seperated)
+    var count: usize = 1;
+    for (array_content) |char| {
+        if (char == ',') count += 1;
+    }
+
+    // Allocate array
+    var array = try allocator.alloc(f64, count);
+    var array_index: usize = 0;
+
+    // Parse each number
+    var num_start: usize = 0;
+    var pos: usize = 0;
+    while (pos <= array_content.len) : (pos += 1) {
+        if (pos == array_content.len or array_content[pos] == ',') {
+            const num_str = array_content[num_start..pos];
+
+            // Trim whitespace
+            var num_trim_start: usize = 0;
+            var num_trim_end: usize = num_str.len;
+            while (num_trim_start < num_trim_end and is_skip_character(num_str[num_trim_start])) : (num_trim_start += 1) {}
+            while (num_trim_end > num_trim_start and is_skip_character(num_str[num_trim_end - 1])) : (num_trim_end -= 1) {}
+
+            const trimmed_num = num_str[num_trim_start..num_trim_end];
+
+            array[array_index] = std.fmt.parseFloat(f64, trimmed_num) catch {
+                allocator.free(array);
+                try stdout.print("Failed to parse number in array: {s}\n", .{trimmed_num});
+                return JsonParserErrors.ArrayParseError;
+            };
+
+            array_index += 1;
+            num_start = pos + 1;
+        }
+    }
+
+    field.* = array;
+}
 
 fn parser_parse_value(
     allocator: std.mem.Allocator,
@@ -136,7 +197,7 @@ fn parser_parse_value(
         .target => try parser_parse_string(allocator, value, &json.target),
         .epochs_trained => try parser_parse_int(value, &json.epochs_trained),
         .final_loss => try parser_parse_float(value, &json.final_loss),
-        .weights => {},
+        .weights => try parser_parse_array(allocator, value, &json.weights),
         .bias => try parser_parse_float(value, &json.bias),
         .unknown => {
             try stdout.print("Unknown Key: {s}\n", .{key});
@@ -255,7 +316,6 @@ fn parser_parse_statements(
                 if (!in_string and !in_array) {
                     // Found statement seperator
                     const statement = buffer[start..pos];
-                    try stdout.print("Found statement: {s}\n", .{statement});
                     if (statement.len == 0) {
                         try stdout.print("Expected key value pair, found ','\n", .{});
                         return JsonParserErrors.EmptyStatement;
@@ -278,7 +338,6 @@ fn parser_parse_statements(
 
     if (start < buffer.len) {
         const statement = buffer[start..];
-        try stdout.print("Found last statement: {s}\n", .{statement});
         parser_parse_statement(allocator, statement, json) catch |err| {
             return err;
         };
@@ -326,7 +385,6 @@ pub fn parser_parse_body(
     }
 
     const data = buffer[count..end];
-    try stdout.print("Json Data: {s}\n", .{data});
 
     var last_char: usize = data.len - 1;
     while (last_char > 0 and is_skip_character(data[last_char])) : (last_char -= 1) {}
