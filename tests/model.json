@@ -1,0 +1,11 @@
+{
+  "schema_version": "0.1.0",
+  "run_id": "1134_754",
+  "model_name": "Iris Flowers",
+  "model_type": "LinearRegression",
+  "target": "flower_class",
+  "epochs_trained": 10,
+  "final_loss": 0.41,
+  "weights": [6, 4.6],
+  "bias": 32
+}
