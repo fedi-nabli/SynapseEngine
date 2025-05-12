@@ -1,3 +1,15 @@
+/*
+ * json.h - Header file for JSON parsing library
+ *
+ * This file defines the structures and functions used for parsing JSON files.
+ * The library provides functionality to parse a CSV
+ * buffer and manage the parsed data.
+ * 
+ * Author: Fedi Nabli
+ * Date: 7 May 2025
+ * Last Modified: 12 May 2025
+ */
+
 #ifndef __JSON_H_
 #define __JSON_H_
 
@@ -6,7 +18,25 @@ extern "C"
 {
 #endif
 
-int add_json(int x, int y);
+#include <stdint.h>
+#include <stddef.h>
+
+typedef struct
+{
+  char* schema_version;
+  char* run_id;
+  char* model_name;
+  char* model_type;
+  char* target;
+  uint32_t epochs_trained;
+  double final_loss;
+  double* weights;
+  size_t _weights_len;
+  double bias;
+} Json;
+
+Json* json_parser_parse(const char* buffer, size_t buffer_len);
+void json_parser_free(Json* json);
 
 #ifdef __cplusplus
 }
