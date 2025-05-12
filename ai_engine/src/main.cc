@@ -6,7 +6,7 @@
  * 
  * Author: Fedi Nabli
  * Date: 8 May 2025
- * Last Updated: 10 May 2025
+ * Last Updated: 12 May 2025
  */
 
 #include "iostream"
@@ -24,9 +24,18 @@ int main()
   SynapseParser::ICSV csv_parser(csv_path);
   csv_parser.Parse();
 
-  const char* buf = "{\"schema_version\": \"0.1.0\", \n\"run_id\": \"123_54\",\n \"model_name\": \"iris flowers\", \n\"model_type\": \"LinearRegression\", \n\"target\": \"flower_class\", \n\"epochs_trained\": 10, \n\"final_loss\": 0.41, \n\"weights\": [3.2, 1.5], \n\"bias\": 32}";
+  const char* buf = "{\"schema_version\": \"0.1.0\", \n\"run_id\": \"123_54\", \n\"model_name\": \"iris flowers\", \n\"model_type\": \"LinearRegression\", \n\"target\": \"flower_class\", \n\"epochs_trained\": 10, \n\"final_loss\": 0.41, \n\"weights\": [3.2, 1.5], \n\"bias\": 32}";
   size_t len = strlen(buf);
   Json* json = json_parser_parse(buf, len);
+  std::cout << "Schema version: " << json->schema_version << std::endl;
+  std::cout << "Run ID: " << json->run_id << std::endl;
+  std::cout << "Model Name: " << json->model_name << std::endl;
+  std::cout << "Model Type: " << json->model_type << std::endl;
+  std::cout << "Target: " << json->target << std::endl;
+  std::cout << "Epochs Trained: " << json->epochs_trained << std::endl;
+  std::cout << "Final Loss: " << json->final_loss << std::endl;
+  std::cout << "Weights: " << json->weights << std::endl;
+  std::cout << "Bias: " << json->bias << std::endl;
   json_parser_free(json);
 
   return 0;

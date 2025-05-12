@@ -21,4 +21,5 @@ pub const JsonParserErrors = error{
     EmptyValue,
     EmptyKey,
     InvalidKey,
+    UnknownKey,
 };

@@ -12,6 +12,32 @@ const std = @import("std");
 const Json = @import("json.zig").Json;
 const JsonParserErrors = @import("error.zig").JsonParserErrors;
 
+const JsonKeys = enum {
+    schema_version,
+    run_id,
+    model_name,
+    model_type,
+    target,
+    epochs_trained,
+    final_loss,
+    weights,
+    bias,
+    unknown,
+};
+
+fn str_to_key(key_str: []const u8) JsonKeys {
+    if (std.mem.eql(u8, key_str, "schema_version")) return .schema_version;
+    if (std.mem.eql(u8, key_str, "run_id")) return .run_id;
+    if (std.mem.eql(u8, key_str, "model_name")) return .model_name;
+    if (std.mem.eql(u8, key_str, "model_type")) return .model_type;
+    if (std.mem.eql(u8, key_str, "target")) return .target;
+    if (std.mem.eql(u8, key_str, "epochs_trained")) return .epochs_trained;
+    if (std.mem.eql(u8, key_str, "final_loss")) return .final_loss;
+    if (std.mem.eql(u8, key_str, "weights")) return .weights;
+    if (std.mem.eql(u8, key_str, "bias")) return .bias;
+    return .unknown;
+}
+
 fn is_skip_character(char: u8) bool {
     return (char == ' ' or char == '\t' or char == '\n' or char == '\r');
 }
@@ -27,15 +53,97 @@ fn skip_whitespaces(
     return pos;
 }
 
-fn parser_parse_string() !void {}
+fn parser_parse_string(
+    allocator: std.mem.Allocator,
+    value: []const u8,
+    field: *?[*:0]u8,
+) !void {
+    const stdout = std.io.getStdOut().writer();
 
-fn parser_parse_int() !void {}
+    // String values must be surrounded by quotes
+    if (value.len < 2 or value[0] != '"' or value[value.len - 1] != '"') {
+        try stdout.print("String value must be surrounded by quotes: {s}\n", .{value});
+        return JsonParserErrors.StringParseError;
+    }
 
-fn parser_parse_float() !void {}
+    // Extract the actual string
+    const content = value[1 .. value.len - 1];
+    const null_terminated_string = try allocator.dupeZ(u8, content);
+
+    // Set the field to the new string
+    field.* = null_terminated_string;
+}
+
+fn parser_parse_int(
+    value: []const u8,
+    field: *u32,
+) !void {
+    const stdout = std.io.getStdOut().writer();
+
+    // Trim whitespace from value
+    var start: usize = 0;
+    var end: usize = value.len;
+
+    while (start < end and is_skip_character(value[start])) : (start += 1) {}
+    while (end > start and is_skip_character(value[end - 1])) : (end -= 1) {}
+
+    const trimmed = value[start..end];
+
+    field.* = std.fmt.parseInt(u32, trimmed, 10) catch {
+        try stdout.print("Failed to parse integer: {s}\n", .{value});
+        return JsonParserErrors.IntParseError;
+    };
+}
+
+fn parser_parse_float(
+    value: []const u8,
+    field: *f64,
+) !void {
+    const stdout = std.io.getStdOut().writer();
+
+    // Trim whitespace from value
+    var start: usize = 0;
+    var end: usize = value.len;
+
+    while (start < end and is_skip_character(value[start])) : (start += 1) {}
+    while (end > start and is_skip_character(value[end - 1])) : (end -= 1) {}
+
+    const trimmed = value[start..end];
+
+    field.* = std.fmt.parseFloat(f64, trimmed) catch {
+        try stdout.print("Failed to parse float: {s}\n", .{value});
+        return JsonParserErrors.FloatParseError;
+    };
+}
 
 fn parser_parse_array() !void {}
 
-fn parser_parse_value() !void {}
+fn parser_parse_value(
+    allocator: std.mem.Allocator,
+    key: []const u8,
+    value: []const u8,
+    json: *Json,
+) !void {
+    const stdout = std.io.getStdOut().writer();
+
+    const key_num = str_to_key(key);
+
+    switch (key_num) {
+        .schema_version => try parser_parse_string(allocator, value, &json.schema_version),
+        .run_id => try parser_parse_string(allocator, value, &json.run_id),
+        .model_name => try parser_parse_string(allocator, value, &json.model_name),
+        .model_type => try parser_parse_string(allocator, value, &json.model_type),
+        .target => try parser_parse_string(allocator, value, &json.target),
+        .epochs_trained => try parser_parse_int(value, &json.epochs_trained),
+        .final_loss => try parser_parse_float(value, &json.final_loss),
+        .weights => {},
+        .bias => try parser_parse_float(value, &json.bias),
+        .unknown => {
+            try stdout.print("Unknown Key: {s}\n", .{key});
+            return JsonParserErrors.UnknownKey;
+        },
+    }
+}
 
 fn parser_parse_key(key: []const u8) ![]const u8 {
     const stdout = std.io.getStdOut().writer();
@@ -67,9 +175,6 @@ fn parser_parse_statement(
     statement: []const u8,
     json: *Json,
 ) !void {
-    _ = allocator;
-    _ = json;
-
     const stdout = std.io.getStdOut().writer();
 
     var start: usize = 0;
@@ -116,9 +221,8 @@ fn parser_parse_statement(
     const value = value_untrimmed[value_start..value_end];
 
     const unqoted_key = try parser_parse_key(key);
-    try stdout.print("Unquoted Key: {s}\n", .{unqoted_key});
 
-    try stdout.print("Value: {s}\n", .{value});
+    try parser_parse_value(allocator, unqoted_key, value, json);
 }
 
 fn parser_parse_statements(

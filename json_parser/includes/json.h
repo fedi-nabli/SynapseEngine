@@ -28,11 +28,12 @@ typedef struct
   char* model_name;
   char* model_type;
   char* target;
-  uint32_t epochs_trained;
   double final_loss;
   double* weights;
   size_t _weights_len;
+  
   double bias;
+  uint32_t epochs_trained;
 } Json;
 
 Json* json_parser_parse(const char* buffer, size_t buffer_len);
