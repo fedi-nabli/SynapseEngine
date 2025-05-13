@@ -4,7 +4,20 @@
 //
 // Author: Fedi Nabli
 // Date: 12 May 2025
-// Last Modified: 12 May 2025
+// Last Modified: 13 May 2025
+
+const std = @import("std");
+
+pub const ModelType = enum {
+    LinearRegression,
+    LogisticRegression,
+
+    pub fn from_string(str: []const u8) ?ModelType {
+        if (std.mem.eql(u8, str, "LinearRegression")) return .LinearRegression;
+        if (std.mem.eql(u8, str, "LogisticRegression")) return .LogisticRegression;
+        return null;
+    }
+};
 
 pub const Json = struct {
     schema_version: ?[*:0]u8,

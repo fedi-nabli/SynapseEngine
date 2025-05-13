@@ -23,10 +23,11 @@ int main()
   std::string csv_path = "./tests/test.csv";
   SynapseParser::ICSV csv_parser(csv_path);
   csv_parser.Parse();
+  std::cout << std::endl << std::endl;
 
-  const char* buf = "{\"schema_version\": \"0.1.0\", \n\"run_id\": \"123_54\", \n\"model_name\": \"iris flowers\", \n\"model_type\": \"LinearRegression\", \n\"target\": \"flower_class\", \n\"epochs_trained\": 10, \n\"final_loss\": 0.41, \n\"weights\": [3.2, 1.5], \n\"bias\": 32}";
+  const char* buf = "{\n  \"schema_version\": \"0.1.0\", \n  \"run_id\": \"123_54\", \n  \"model_name\": \"iris flowers\", \n  \"model_type\": \"LinearRegression\", \n  \"target\": \"flower_class\", \n  \"epochs_trained\": 10, \n  \"final_loss\": 0.41, \n  \"weights\": [3.2, 1.5], \n  \"bias\": 32\n}";
   std::cout << "JSON Data:" << std::endl;
-  std::cout << buf << std::endl;
+  std::cout << buf << std::endl << std::endl;
   
   size_t len = strlen(buf);
   Json* json = json_parser_parse(buf, len);

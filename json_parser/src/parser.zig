@@ -5,11 +5,13 @@
 //
 // Author: Fedi Nabli
 // Date: 12 May 2025
-// Last Modified: 12 May 2025
+// Last Modified: 13 May 2025
 
 const std = @import("std");
 
-const Json = @import("json.zig").Json;
+const JsonTypes = @import("json.zig");
+const Json = JsonTypes.Json;
+const ModelType = JsonTypes.ModelType;
 const JsonParserErrors = @import("error.zig").JsonParserErrors;
 
 const JsonKeys = enum {
@@ -179,6 +181,30 @@ fn parser_parse_array(
     field.* = array;
 }
 
+fn parser_parse_validate_model_type(value: []const u8) !void {
+    const stdout = std.io.getStdOut().writer();
+
+    // Remove quotes from value
+    var start: usize = 0;
+    var end: usize = value.len;
+
+    while (start < end and is_skip_character(value[start])) : (start += 1) {}
+    while (end > start and is_skip_character(value[end - 1])) : (end -= 1) {}
+
+    const trimmed = value[start..end];
+
+    if (trimmed.len < 2 or trimmed[0] != '"' or trimmed[trimmed.len - 1] != '"') {
+        try stdout.print("Model type must be a string: {s}\n", .{trimmed});
+        return JsonParserErrors.StringParseError;
+    }
+
+    const type_str = trimmed[1 .. trimmed.len - 1];
+    if (ModelType.from_string(type_str) == null) {
+        try stdout.print("Unsupported model type: {s}\n", .{type_str});
+        return JsonParserErrors.UnsupportedModelType;
+    }
+}
+
 fn parser_parse_value(
     allocator: std.mem.Allocator,
     key: []const u8,
@@ -193,7 +219,10 @@ fn parser_parse_value(
         .schema_version => try parser_parse_string(allocator, value, &json.schema_version),
         .run_id => try parser_parse_string(allocator, value, &json.run_id),
         .model_name => try parser_parse_string(allocator, value, &json.model_name),
-        .model_type => try parser_parse_string(allocator, value, &json.model_type),
+        .model_type => {
+            try parser_parse_validate_model_type(value);
+            try parser_parse_string(allocator, value, &json.model_type);
+        },
         .target => try parser_parse_string(allocator, value, &json.target),
         .epochs_trained => try parser_parse_int(value, &json.epochs_trained),
         .final_loss => try parser_parse_float(value, &json.final_loss),
@@ -344,6 +373,55 @@ fn parser_parse_statements(
     }
 }
 
+fn parser_validate_json(json: *const Json) !void {
+    const stdout = std.io.getStdOut().writer();
+
+    if (json.schema_version == null) {
+        try stdout.print("Missing required field: schema_version\n", .{});
+        return JsonParserErrors.MissingFields;
+    }
+
+    if (json.run_id == null) {
+        try stdout.print("Missing required field: run_id/n", .{});
+        return JsonParserErrors.MissingFields;
+    }
+
+    if (json.model_name == null) {
+        try stdout.print("Missing required field: model_name\n", .{});
+        return JsonParserErrors.MissingFields;
+    }
+
+    if (json.model_type == null) {
+        try stdout.print("Missing required field: model_type\n", .{});
+        return JsonParserErrors.MissingFields;
+    }
+
+    if (json.target == null) {
+        try stdout.print("Missing required field: target\n", .{});
+        return JsonParserErrors.MissingFields;
+    }
+
+    if (json.epochs_trained == 0) {
+        try stdout.print("Missing required field: epochs_trained\n", .{});
+        return JsonParserErrors.MissingFields;
+    }
+
+    if (json.final_loss == -1) {
+        try stdout.print("Missing required field: final_loss\n", .{});
+        return JsonParserErrors.MissingFields;
+    }
+
+    if (json.weights.len == 0) {
+        try stdout.print("Missing required field: weights\n", .{});
+        return JsonParserErrors.MissingFields;
+    }
+
+    if (json.bias == -1) {
+        try stdout.print("Missing required field: bias\n", .{});
+        return JsonParserErrors.MissingFields;
+    }
+}
+
 pub fn parser_parse_body(
     allocator: std.mem.Allocator,
     json: *Json,
@@ -398,4 +476,7 @@ pub fn parser_parse_body(
         try stdout.print("Error parsing json data\n", .{});
         return err;
     };
+
+    // Validate all resuired fields are present
+    try parser_validate_json(json);
 }

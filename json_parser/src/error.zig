@@ -4,7 +4,7 @@
 //
 // Author: Fedi Nabli
 // Date: 12 May 2025
-// Last Modified: 12 May 2025
+// Last Modified: 13 May 2025
 
 pub const JsonParserErrors = error{
     ExpectedStartToken,
@@ -22,4 +22,5 @@ pub const JsonParserErrors = error{
     EmptyKey,
     InvalidKey,
     UnknownKey,
+    UnsupportedModelType,
 };
