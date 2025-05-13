@@ -1,3 +1,13 @@
+/*
+ * json.cc - AI Engine C++ JSON Class Implementation
+ * 
+ * This file implements the C++ JSON Class' functions
+ * 
+ * Author: Fedi Nabli
+ * Date: 13 May 2025
+ * Last Updated: 13 May 2025
+ */
+
 #include "data/json.hpp"
 
 #include <fstream>

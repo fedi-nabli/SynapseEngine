@@ -1,3 +1,13 @@
+/*
+ * json.hpp - AI Engine C++ JSON Class Header
+ * 
+ * This file defines the C++ JOSN Class and function interfaces
+ * 
+ * Author: Fedi Nabli
+ * Date: 13 May 2025
+ * Last Updated: 13 May 2025
+ */
+
 #pragma once
 
 #include <vector>
