@@ -6,6 +6,6 @@
   "target": "flower_class",
   "epochs_trained": 10,
   "final_loss": 0.41,
-  "weights": [6, 4.6],
+  "weights": [6, 4.6, 0.5],
   "bias": 32
 }

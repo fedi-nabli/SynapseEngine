@@ -3,7 +3,9 @@ import sys
 
 REQUIRED_FILES = [
   'ai_engine/includes/data/csv.hpp',
+  'ai_engine/includes/data/json.hpp',
   'ai_engine/src/data/csv.cc',
+  'ai_engine/src/data/json.cc',
   'ai_engine/src/main.cc',
   'ai_engine/CMakeLists.txt',
   'cmake/AddScriptTests.cmake',

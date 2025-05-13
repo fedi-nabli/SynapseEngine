@@ -7,6 +7,7 @@
 
 add_library(ai_engine STATIC
   src/data/csv.cc
+  src/data/json.cc
 )
 
 target_link_libraries(ai_engine

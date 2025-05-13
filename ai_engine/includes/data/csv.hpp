@@ -39,7 +39,7 @@ namespace SynapseParser
       ICSV(std::string filepath)
         : m_FilePath(filepath) {}
 
-      ~ICSV() {};
+      ~ICSV() {}
 
       void Parse();
       bool Validate();
