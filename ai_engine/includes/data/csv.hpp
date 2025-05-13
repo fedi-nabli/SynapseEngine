@@ -89,6 +89,11 @@ namespace SynapseParser
         return GetColumnByIndex(idx);
       }
 
+      std::vector<Value> operator[](const std::string& name) const
+      {
+        return GetColumnByName(name);
+      }
+
     private:
       void PrintStats();
       void CopyData(CSV* csv);
