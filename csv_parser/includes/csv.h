@@ -56,7 +56,7 @@ typedef struct {
 } Header;
 
 typedef struct CSV {
-  char* terminator;
+  const char* terminator;
   Header header;
   Data data;
   char seperator;

@@ -38,7 +38,7 @@ pub const Header = struct {
 
 pub const CSV = struct {
     seperator: u8,
-    terminator: ?[*:0]u8,
+    terminator: ?[*:0]const u8,
     header: Header,
     data: Data,
 
