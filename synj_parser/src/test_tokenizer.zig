@@ -28,7 +28,7 @@ fn printToken(token: Token, writer: anytype) !void {
     switch (token.type) {
         .KEYWORD => try writer.print("value: \"{s}\", ", .{token.value.sval}),
         .NULL_LITERAL => try writer.print("value: NULL, ", .{}),
-        .STRING_LITERAL => try writer.print("value: \"{s}\", ", .{token.value.sval}),
+        .STRING_LITERAL => try writer.print("value: {s}, ", .{token.value.sval}),
         .NUMBER_LITERAL => {
             if (token.num_type) |num_type| {
                 switch (num_type) {
@@ -49,7 +49,7 @@ test "Tokenize SYNJ Sample" {
     const input =
         \\model_name = "Iris Flowers";
         \\algorithm = LinearRegression;
-        \\csv_file = "data/iris.csv";
+        \\csv_path = "data/iris.csv";
         \\train_test_split = [80, 20];
         \\target = "flower_class";
         \\features = [
@@ -105,7 +105,7 @@ test "Tokenize Strings with Escapes" {
     // Sample with various string escapes
     const input =
         \\"Simple string"
-        \\"String with \\\"quotes\\\""  // Note the doubled backslashes before quotes
+        \\"String with \\\"quotes\\\""
         \\"String with \\n newline"
         \\"String with \\t tab"
         \\"Backslash \\\\"

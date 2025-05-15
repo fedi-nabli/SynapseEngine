@@ -11,5 +11,6 @@ pub const TokenizerErrors = error{
     UnexpectedCharacter,
     UnterminatedString,
     InvalidNumber,
+    InvalidKeyword,
     OutOfMemory,
 };

@@ -15,6 +15,24 @@ const Lexer = @import("lexer.zig").Lexer;
 
 const TokenizerErrors = @import("error.zig").TokenizerErrors;
 
+const valid_keywords = [_][]const u8{
+    "model_name",
+    "algorithm",
+    "csv_path",
+    "train_test_split",
+    "target",
+    "features",
+    "classes",
+    "epochs",
+    "learning_rate",
+    "batch_size",
+    "early_stop",
+    "output_path",
+    // Algorithm types
+    "LinearRegression",
+    "LogisticRegression",
+};
+
 pub const TokenType = enum {
     KEYWORD,
     NULL_LITERAL,
@@ -273,6 +291,13 @@ pub const Tokenizer = struct {
             };
         }
 
+        // Verify it's a valid keyword
+        if (!is_valid_keyword(keyword)) {
+            const stdout = std.io.getStdOut().writer();
+            try stdout.print("Invalid keyword: '{s}' at line {d}, col {d}\n", .{ keyword, start_pos.line, start_pos.col });
+            return TokenizerErrors.InvalidKeyword;
+        }
+
         return Token{
             .type = .KEYWORD,
             .pos = start_pos,
@@ -298,6 +323,16 @@ pub const Tokenizer = struct {
         return tokens.toOwnedSlice();
     }
 };
+
+fn is_valid_keyword(keyword: []const u8) bool {
+    for (valid_keywords) |valid_keyword| {
+        if (std.mem.eql(u8, keyword, valid_keyword)) {
+            return true;
+        }
+    }
+
+    return false;
+}
 
 fn create_semicolon_token(start_pos: TokenPos, char: u8, lexeme: []const u8) Token {
     return Token{
