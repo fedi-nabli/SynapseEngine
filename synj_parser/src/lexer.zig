@@ -5,7 +5,7 @@
 //
 // Author: Fedi Nabli
 // Date: 14 May 2025
-// Last Modified: 14 May 2025
+// Last Modified: 15 May 2025
 
 pub const Position = struct {
     line: usize,
@@ -33,101 +33,101 @@ pub const Lexer = struct {
             .col = 1,
         };
     }
-};
 
-pub fn peek(self: *Lexer) u8 {
-    if (self.pos >= self.buffer_len)
-        return 0;
+    pub fn peek(self: *Lexer) u8 {
+        if (self.pos >= self.buffer_len)
+            return 0;
 
-    return self.buffer[self.pos];
-}
-
-pub fn peek_at(self: *Lexer, pos_ahead: usize) u8 {
-    if (self.pos + pos_ahead >= self.buffer_len)
-        return 0;
-
-    return self.buffer[self.pos + pos_ahead];
-}
-
-pub fn advance(self: *Lexer) u8 {
-    if (self.pos >= self.buffer_len)
-        return 0;
-
-    const char: u8 = self.buffer[self.pos];
-
-    self.pos += 1;
-    self.col += 1;
-
-    if (char == '\n') {
-        self.line += 1;
-        self.col = 1;
+        return self.buffer[self.pos];
     }
 
-    return char;
-}
+    pub fn peek_at(self: *Lexer, pos_ahead: usize) u8 {
+        if (self.pos + pos_ahead >= self.buffer_len)
+            return 0;
 
-pub fn is_at_end(self: *Lexer) bool {
-    if (self.pos >= self.buffer_len)
-        return true;
-
-    return false;
-}
-
-pub fn read_until_end(self: *Lexer) void {
-    while (self.pos < self.buffer_len) {
-        if (peek(self) == '\n')
-            break;
-
-        advance(self);
+        return self.buffer[self.pos + pos_ahead];
     }
-}
 
-pub fn skip_whitespaces(self: *Lexer) void {
-    while (!is_at_end(self)) {
-        const c = peek(self);
-        if (c == ' ' or c == '\t' or c == '\n' or c == '\r') {
+    pub fn advance(self: *Lexer) u8 {
+        if (self.pos >= self.buffer_len)
+            return 0;
+
+        const char: u8 = self.buffer[self.pos];
+
+        self.pos += 1;
+        self.col += 1;
+
+        if (char == '\n') {
+            self.line += 1;
+            self.col = 1;
+        }
+
+        return char;
+    }
+
+    pub fn is_at_end(self: *Lexer) bool {
+        if (self.pos >= self.buffer_len)
+            return true;
+
+        return false;
+    }
+
+    pub fn read_until_end(self: *Lexer) void {
+        while (self.pos < self.buffer_len) {
+            if (peek(self) == '\n')
+                break;
+
             _ = advance(self);
-        } else {
-            break;
         }
     }
-}
 
-pub fn skip_comment(self: *Lexer) void {
-    if (peek(self) == '/' and peek_at(self, 1) == '/') {
-        _ = advance(self);
-        _ = advance(self);
-        read_until_end(self);
-        if (peek(self) == '\n')
-            _ = advance(self);
+    pub fn skip_whitespaces(self: *Lexer) void {
+        while (!is_at_end(self)) {
+            const c = peek(self);
+            if (c == ' ' or c == '\t' or c == '\n' or c == '\r') {
+                _ = advance(self);
+            } else {
+                break;
+            }
+        }
     }
-}
 
-pub fn skip_whitespaces_and_comments(self: *Lexer) void {
-    while (true) {
-        skip_whitespaces(self);
+    pub fn skip_comment(self: *Lexer) void {
         if (peek(self) == '/' and peek_at(self, 1) == '/') {
-            skip_comment(self);
-            continue;
-        } else {
-            break;
+            _ = advance(self);
+            _ = advance(self);
+            read_until_end(self);
+            if (peek(self) == '\n')
+                _ = advance(self);
         }
     }
-}
 
-pub fn match(self: *Lexer, expected: u8) bool {
-    if (peek(self) == expected) {
-        _ = advance(self);
-        return true;
+    pub fn skip_whitespaces_and_comments(self: *Lexer) void {
+        while (true) {
+            skip_whitespaces(self);
+            if (peek(self) == '/' and peek_at(self, 1) == '/') {
+                skip_comment(self);
+                continue;
+            } else {
+                break;
+            }
+        }
     }
 
-    return false;
-}
+    pub fn match(self: *Lexer, expected: u8) bool {
+        if (peek(self) == expected) {
+            _ = advance(self);
+            return true;
+        }
 
-pub fn get_position(self: *Lexer) Position {
-    return Position{ .line = self.line, .col = self.col };
-}
+        return false;
+    }
 
-pub fn make_span(self: *Lexer, start: Position) Span {
-    return Span{ .start = start, .end = get_position(self) };
-}
+    pub fn get_position(self: *Lexer) Position {
+        return Position{ .line = self.line, .col = self.col };
+    }
+
+    pub fn make_span(self: *Lexer, start: Position) Span {
+        return Span{ .start = start, .end = get_position(self) };
+    }
+};
