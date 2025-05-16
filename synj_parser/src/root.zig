@@ -11,7 +11,11 @@ const std = @import("std");
 
 const Synj = @import("synj.zig").Synj;
 
+const nodes = @import("node.zig");
+
 const parser_parse_body = @import("parser.zig").parser_parse_body;
+
+const validator = @import("validator.zig");
 
 // Global static allocator
 var gpa = std.heap.GeneralPurposeAllocator(.{}){};
@@ -25,8 +29,22 @@ pub export fn synj_parser_parse(
     const buf = buffer_ptr[0..buffer_len];
     const synj_ptr = global_allocator.create(Synj) catch return null;
 
-    const root_node = parser_parse_body(global_allocator, buf, buf.len) catch return null;
-    _ = root_node;
+    synj_ptr.* = Synj.init_default();
+
+    const root_node = parser_parse_body(global_allocator, buf, buf.len) catch {
+        global_allocator.destroy(synj_ptr);
+        return null;
+    };
+    defer nodes.node_free(global_allocator, root_node);
+
+    const validation_result = validator.validate_ast(global_allocator, root_node, synj_ptr) catch {
+        global_allocator.destroy(synj_ptr);
+        return null;
+    };
+
+    if (!validation_result) {
+        return null;
+    }
 
     return synj_ptr;
 }

@@ -29,4 +29,21 @@ pub const Synj = struct {
     batch_size: ?u32,
     early_stop: ?EarlyStop,
     output_path: ?[*:0]u8,
+
+    pub fn init_default() Synj {
+        return Synj{
+            .model_name = null,
+            .model_type = undefined,
+            .csv_path = null,
+            .target = null,
+            .train_test_split = [2]u8{ 0, 0 },
+            .features = null,
+            .classes = null,
+            .epochs = 0,
+            .learning_rate = 0.01,
+            .batch_size = null,
+            .early_stop = null,
+            .output_path = null,
+        };
+    }
 };

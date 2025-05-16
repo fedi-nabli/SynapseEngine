@@ -41,6 +41,7 @@ REQUIRED_FILES = [
   'synj_parser/src/root.zig',
   'synj_parser/src/synj.zig',
   'synj_parser/src/tokenizer.zig',
+  'synj_parser/src/validator.zig',
   'synj_parser/build.zig',
   'synj_parser/CMakeLists.txt',
   'tests/test.csv',
