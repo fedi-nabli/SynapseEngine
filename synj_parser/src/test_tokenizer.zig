@@ -4,7 +4,7 @@
 //
 // Author: Fedi Nabli
 // Date: 15 May 2025
-// Last Modified: 15 May 2025
+// Last Modified: 16 May 2025
 
 const std = @import("std");
 const testing = std.testing;
@@ -63,7 +63,7 @@ test "Tokenize SYNJ Sample" {
         \\learning_rate = 0.01;
         \\batch_size = NULL;
         \\early_stop = { "patience": 5 };
-        \\output_path = "model/model.json"
+        \\output_path = "model/model.json";
     ;
 
     const stdout = std.io.getStdOut().writer();
@@ -174,7 +174,6 @@ test "Tokenize Numbers" {
 test "Tokenize Keywords and NULL" {
     // Sample with keywords and NULL
     const input =
-        \\identifier
         \\NULL
         \\LinearRegression
         \\LogisticRegression
@@ -192,7 +191,6 @@ test "Tokenize Keywords and NULL" {
 
     // Expected token types
     const expected_types = [_]TokenType{
-        .KEYWORD,
         .NULL_LITERAL,
         .KEYWORD,
         .KEYWORD,

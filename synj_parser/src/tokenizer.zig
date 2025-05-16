@@ -5,7 +5,7 @@
 //
 // Author: Fedi Nabli
 // Date: 15 May 2025
-// Last Modified: 15 May 2025
+// Last Modified: 16 May 2025
 
 const std = @import("std");
 
@@ -82,13 +82,23 @@ pub const Tokenizer = struct {
     lex: *Lexer,
     peek: ?Token,
     allocator: std.mem.Allocator,
+    // Track string allocation to free and not have memory leaks
+    string_allocations: std.ArrayList([]u8),
 
     pub fn init(lexer_ptr: *Lexer, allocator: std.mem.Allocator) Tokenizer {
         return Tokenizer{
             .lex = lexer_ptr,
             .peek = null,
             .allocator = allocator,
+            .string_allocations = std.ArrayList([]u8).init(allocator),
         };
+    }
+
+    pub fn deinit(self: *Tokenizer) void {
+        for (self.string_allocations.items) |str| {
+            self.allocator.free(str);
+        }
+        self.string_allocations.deinit();
     }
 
     pub fn peek_token(self: *Tokenizer) !Token {
@@ -213,11 +223,14 @@ pub const Tokenizer = struct {
         // Skip closing quote
         _ = self.lex.advance();
 
+        const string_value = try self.allocator.dupe(u8, value.items);
+        try self.string_allocations.append(string_value);
+
         // Create Token
         return Token{
             .type = .STRING_LITERAL,
             .pos = start_pos,
-            .value = TokenVal{ .sval = try self.allocator.dupe(u8, value.items) },
+            .value = TokenVal{ .sval = string_value },
             .num_type = null,
             .lexeme = self.lex.buffer[start_idx..self.lex.pos],
         };
@@ -298,10 +311,13 @@ pub const Tokenizer = struct {
             return TokenizerErrors.InvalidKeyword;
         }
 
+        const keyword_value = try self.allocator.dupe(u8, keyword);
+        try self.string_allocations.append(keyword_value);
+
         return Token{
             .type = .KEYWORD,
             .pos = start_pos,
-            .value = TokenVal{ .sval = try self.allocator.dupe(u8, keyword) },
+            .value = TokenVal{ .sval = keyword_value },
             .num_type = null,
             .lexeme = keyword,
         };

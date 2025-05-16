@@ -5,11 +5,13 @@
 //
 // Author: Fedi Nabli
 // Date: 14 May 2025
-// Last Modified: 14 May 2025
+// Last Modified: 16 May 2025
 
 const std = @import("std");
 
 const Synj = @import("synj.zig").Synj;
+
+const parser_parse_body = @import("parser.zig").parser_parse_body;
 
 // Global static allocator
 var gpa = std.heap.GeneralPurposeAllocator(.{}){};
@@ -23,7 +25,8 @@ pub export fn synj_parser_parse(
     const buf = buffer_ptr[0..buffer_len];
     const synj_ptr = global_allocator.create(Synj) catch return null;
 
-    _ = buf;
+    const root_node = parser_parse_body(global_allocator, buf, buf.len) catch return null;
+    _ = root_node;
 
     return synj_ptr;
 }
