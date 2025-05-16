@@ -36,6 +36,8 @@ REQUIRED_FILES = [
   'synj_parser/src/error.zig',
   'synj_parser/src/helper.zig',
   'synj_parser/src/lexer.zig',
+  'synj_parser/src/node.zig',
+  'synj_parser/src/parser.zig',
   'synj_parser/src/root.zig',
   'synj_parser/src/synj.zig',
   'synj_parser/src/tokenizer.zig',
