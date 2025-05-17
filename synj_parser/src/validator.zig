@@ -249,6 +249,7 @@ pub const Validator = struct {
         }
 
         synj_config.features = features.ptr;
+        synj_config.features_len = features.len;
     }
 
     fn validate_classes(self: *Validator, node: *Node, synj_config: *Synj) !void {
@@ -287,6 +288,7 @@ pub const Validator = struct {
         }
 
         synj_config.classes = classes.ptr;
+        synj_config.classes_len = classes.len;
     }
 
     fn validate_epochs(self: *Validator, node: *Node, synj_config: *Synj) !void {

@@ -17,6 +17,28 @@ const root = @import("root.zig");
 const synj_parser_parse = root.synj_parser_parse;
 const synj_parser_free = root.synj_parser_free;
 
+fn print_memory_layout(synj: *Synj) void {
+    std.debug.print("SYNJ Zig Struct Memory:\n", .{});
+    std.debug.print("Total memory size: {d}\n", .{@sizeOf(Synj)});
+    std.debug.print("Model Name: size {d}, offset {d}\n", .{ @sizeOf(@TypeOf(synj.model_name)), @offsetOf(Synj, "model_name") });
+    std.debug.print("Algorithm: size {d}, offset {d}\n", .{ @sizeOf(@TypeOf(synj.model_type)), @offsetOf(Synj, "model_type") });
+    std.debug.print("CSV Path: size {d}, offset {d}\n", .{ @sizeOf(@TypeOf(synj.csv_path)), @offsetOf(Synj, "csv_path") });
+    std.debug.print("Target: size {d}, offset {d}\n", .{ @sizeOf(@TypeOf(synj.target)), @offsetOf(Synj, "target") });
+    std.debug.print("Train Test Split: size {d}, offset {d}\n", .{ @sizeOf(@TypeOf(synj.train_test_split)), @offsetOf(Synj, "train_test_split") });
+    std.debug.print("Features: size {d}, offset {d}\n", .{ @sizeOf(@TypeOf(synj.features)), @offsetOf(Synj, "features") });
+    std.debug.print("Features Len: size {d}, offset {d}\n", .{ @sizeOf(@TypeOf(synj.features_len)), @offsetOf(Synj, "features_len") });
+    std.debug.print("Classes: size {d}, offset {d}\n", .{ @sizeOf(@TypeOf(synj.classes)), @offsetOf(Synj, "classes") });
+    std.debug.print("Classes Len: size {d}, offset {d}\n", .{ @sizeOf(@TypeOf(synj.classes_len)), @offsetOf(Synj, "classes_len") });
+    std.debug.print("Epochs: size {d}, offset {d}\n", .{ @sizeOf(@TypeOf(synj.epochs)), @offsetOf(Synj, "epochs") });
+    std.debug.print("Learning Rate: size {d}, offset {d}\n", .{ @sizeOf(@TypeOf(synj.learning_rate)), @offsetOf(Synj, "learning_rate") });
+    std.debug.print("Batch Size: size {d}, offset {d}\n", .{ @sizeOf(@TypeOf(synj.batch_size)), @offsetOf(Synj, "batch_size") });
+    std.debug.print("Early Stop: size {d}, offset {d}\n", .{ @sizeOf(@TypeOf(synj.early_stop)), @offsetOf(Synj, "early_stop") });
+    if (synj.early_stop) |es| {
+        std.debug.print("Early Stop Patience: size {d}, offset {d}\n", .{ @sizeOf(@TypeOf(es.patience)), @offsetOf(EarlyStop, "patience") });
+    }
+    std.debug.print("Output Path: size {d}, offset {d}\n", .{ @sizeOf(@TypeOf(synj.output_path)), @offsetOf(Synj, "output_path") });
+}
+
 test "Parse valid SYNJ configuration" {
     const test_name = "Parse valid SYNJ configuration";
     std.debug.print("\n----- Starting Test: {s} -----\n", .{test_name});
@@ -41,6 +63,8 @@ test "Parse valid SYNJ configuration" {
     // Parse the valid configuration
     const synj_ptr = synj_parser_parse(valid_synj, valid_synj.len);
     defer if (synj_ptr != null) synj_parser_free(synj_ptr.?);
+
+    print_memory_layout(synj_ptr.?);
 
     // Verify we got a valid configuration
     try testing.expect(synj_ptr != null);

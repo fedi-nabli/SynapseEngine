@@ -62,9 +62,19 @@ pub export fn synj_parser_free(synj: *Synj) void {
         global_allocator.free(std.mem.sliceTo(synj.target.?, 0));
     }
 
-    // TODO: free train test split array
-    // TODO: free string array memory (features & classes)
-    // TODO: free early stop
+    if (synj.features != null) {
+        for (0..synj.features_len) |idx| {
+            global_allocator.free(std.mem.sliceTo(synj.features.?[idx], 0));
+        }
+        global_allocator.free(synj.features.?[0..synj.features_len]);
+    }
+
+    if (synj.classes != null) {
+        for (0..synj.classes_len) |idx| {
+            global_allocator.free(std.mem.sliceTo(synj.classes.?[idx], 0));
+        }
+        global_allocator.free(synj.classes.?[0..synj.classes_len]);
+    }
 
     if (synj.output_path != null) {
         global_allocator.free(std.mem.sliceTo(synj.output_path.?, 0));
