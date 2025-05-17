@@ -4,7 +4,7 @@
 //
 // Author: Fedi Nabli
 // Date: 15 May 2025
-// Last Modified: 16 May 2025
+// Last Modified: 17 May 2025
 
 const std = @import("std");
 const testing = std.testing;
@@ -16,28 +16,6 @@ const EarlyStop = @import("synj.zig").EarlyStop;
 const root = @import("root.zig");
 const synj_parser_parse = root.synj_parser_parse;
 const synj_parser_free = root.synj_parser_free;
-
-fn print_memory_layout(synj: *Synj) void {
-    std.debug.print("SYNJ Zig Struct Memory:\n", .{});
-    std.debug.print("Total memory size: {d}\n", .{@sizeOf(Synj)});
-    std.debug.print("Model Name: size {d}, offset {d}\n", .{ @sizeOf(@TypeOf(synj.model_name)), @offsetOf(Synj, "model_name") });
-    std.debug.print("Algorithm: size {d}, offset {d}\n", .{ @sizeOf(@TypeOf(synj.model_type)), @offsetOf(Synj, "model_type") });
-    std.debug.print("CSV Path: size {d}, offset {d}\n", .{ @sizeOf(@TypeOf(synj.csv_path)), @offsetOf(Synj, "csv_path") });
-    std.debug.print("Target: size {d}, offset {d}\n", .{ @sizeOf(@TypeOf(synj.target)), @offsetOf(Synj, "target") });
-    std.debug.print("Train Test Split: size {d}, offset {d}\n", .{ @sizeOf(@TypeOf(synj.train_test_split)), @offsetOf(Synj, "train_test_split") });
-    std.debug.print("Features: size {d}, offset {d}\n", .{ @sizeOf(@TypeOf(synj.features)), @offsetOf(Synj, "features") });
-    std.debug.print("Features Len: size {d}, offset {d}\n", .{ @sizeOf(@TypeOf(synj.features_len)), @offsetOf(Synj, "features_len") });
-    std.debug.print("Classes: size {d}, offset {d}\n", .{ @sizeOf(@TypeOf(synj.classes)), @offsetOf(Synj, "classes") });
-    std.debug.print("Classes Len: size {d}, offset {d}\n", .{ @sizeOf(@TypeOf(synj.classes_len)), @offsetOf(Synj, "classes_len") });
-    std.debug.print("Epochs: size {d}, offset {d}\n", .{ @sizeOf(@TypeOf(synj.epochs)), @offsetOf(Synj, "epochs") });
-    std.debug.print("Learning Rate: size {d}, offset {d}\n", .{ @sizeOf(@TypeOf(synj.learning_rate)), @offsetOf(Synj, "learning_rate") });
-    std.debug.print("Batch Size: size {d}, offset {d}\n", .{ @sizeOf(@TypeOf(synj.batch_size)), @offsetOf(Synj, "batch_size") });
-    std.debug.print("Early Stop: size {d}, offset {d}\n", .{ @sizeOf(@TypeOf(synj.early_stop)), @offsetOf(Synj, "early_stop") });
-    if (synj.early_stop) |es| {
-        std.debug.print("Early Stop Patience: size {d}, offset {d}\n", .{ @sizeOf(@TypeOf(es.patience)), @offsetOf(EarlyStop, "patience") });
-    }
-    std.debug.print("Output Path: size {d}, offset {d}\n", .{ @sizeOf(@TypeOf(synj.output_path)), @offsetOf(Synj, "output_path") });
-}
 
 test "Parse valid SYNJ configuration" {
     const test_name = "Parse valid SYNJ configuration";
@@ -63,8 +41,6 @@ test "Parse valid SYNJ configuration" {
     // Parse the valid configuration
     const synj_ptr = synj_parser_parse(valid_synj, valid_synj.len);
     defer if (synj_ptr != null) synj_parser_free(synj_ptr.?);
-
-    print_memory_layout(synj_ptr.?);
 
     // Verify we got a valid configuration
     try testing.expect(synj_ptr != null);
@@ -93,7 +69,7 @@ test "Parse valid SYNJ configuration" {
 
     try testing.expectEqual(@as(u32, 100), config.epochs);
     try testing.expectEqual(@as(f64, 0.01), config.learning_rate);
-    try testing.expectEqual(@as(u32, 32), config.batch_size.?);
+    try testing.expectEqual(@as(u32, 32), config.batch_size);
     try testing.expectEqual(@as(u32, 10), config.early_stop.?.patience);
     try testing.expectEqualStrings("output/model.json", std.mem.span(config.output_path.?));
 }
@@ -138,7 +114,7 @@ test "Parse SYNJ with minimal required fields" {
 
     // Check default values
     try testing.expectEqual(@as(f64, 0.01), config.learning_rate); // Default
-    try testing.expectEqual(@as(?u32, null), config.batch_size); // Default: null
+    try testing.expectEqual(@as(u32, 0), config.batch_size); // Default: null
     try testing.expectEqual(@as(?EarlyStop, null), config.early_stop); // Default: null
     try testing.expectEqualStrings("model/model.json", std.mem.span(config.output_path.?)); // Default
 }

@@ -1,3 +1,12 @@
+// validator.zig - SYNJ validator
+//
+// This file defines structures related to the validator for
+// the SYNJ DSL structure to be parsed for the model configuration
+//
+// Author: Fedi Nabli
+// Date: 14 May 2025
+// Last Modified: 17 May 2025
+
 const std = @import("std");
 
 const synj = @import("synj.zig");
@@ -326,7 +335,6 @@ pub const Validator = struct {
 
     fn validate_batch_size(self: *Validator, node: *Node, synj_config: *Synj) !void {
         if (node.node_type == .NullLiteral) {
-            synj_config.batch_size = null;
             return;
         }
 
@@ -351,7 +359,6 @@ pub const Validator = struct {
 
     fn validate_early_stop(self: *Validator, node: *Node, synj_config: *Synj) !void {
         if (node.node_type == .NullLiteral) {
-            synj_config.early_stop = null;
             return;
         }
 

@@ -5,7 +5,7 @@
 //
 // Author: Fedi Nabli
 // Date: 14 May 2025
-// Last Modified: 14 May 2025
+// Last Modified: 17 May 2025
 
 pub const ModelType = enum {
     LinearRegression,
@@ -28,8 +28,8 @@ pub const Synj = struct {
     classes_len: usize,
     epochs: u32,
     learning_rate: f64,
-    batch_size: ?u32,
-    early_stop: ?EarlyStop,
+    batch_size: u32,
+    early_stop: EarlyStop,
     output_path: ?[*:0]u8,
 
     pub fn init_default() Synj {
@@ -45,8 +45,8 @@ pub const Synj = struct {
             .classes_len = 0,
             .epochs = 0,
             .learning_rate = 0.01,
-            .batch_size = null,
-            .early_stop = null,
+            .batch_size = 0,
+            .early_stop = .{ .patience = 0 },
             .output_path = null,
         };
     }

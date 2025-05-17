@@ -2,12 +2,12 @@
  * json.h - Header file for JSON parsing library
  *
  * This file defines the structures and functions used for parsing JSON files.
- * The library provides functionality to parse a CSV
+ * The library provides functionality to parse a JSON
  * buffer and manage the parsed data.
  * 
  * Author: Fedi Nabli
  * Date: 7 May 2025
- * Last Modified: 12 May 2025
+ * Last Modified: 17 May 2025
  */
 
 #ifndef __JSON_H_
