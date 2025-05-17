@@ -8,6 +8,7 @@
 add_library(ai_engine STATIC
   src/data/csv.cc
   src/data/json.cc
+  src/data/synj.cc
 )
 
 target_compile_features(ai_engine PUBLIC cxx_std_17)

@@ -1,0 +1,17 @@
+model_name = "Iris Flower";
+algorithm = LinearRegression;
+csv_path = "tests/test.csv";
+train_test_split = [80, 20];
+target = "species";
+features = [
+  "sepal_length",
+  "sepal_width",
+  "petal_length",
+  "petal_width"
+];
+classes = ["setosa", "versicolor", "virginica"];
+epochs = 100;
+learning_rate = 0.001;
+batch_size = NULL;
+early_stop = { "patience": 10 };
+output_path = "model/model.json";
