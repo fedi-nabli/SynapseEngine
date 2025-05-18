@@ -19,7 +19,7 @@ int main()
 {
   std::cout << "Hello World!" << std::endl;
 
-  std::string csv_path = "./tests/test.csv";
+  std::string csv_path = "./tests/ctf.csv";
   SynapseParser::ICSV csv_parser(csv_path);
   csv_parser.Parse();
   std::cout << std::endl << std::endl;
@@ -29,7 +29,7 @@ int main()
   json_parser.Parse();
   std::cout << std::endl << std::endl;
 
-  std::string synj_path = "./tests/config.synj";
+  std::string synj_path = "./tests/ctf_config.synj";
   SynapseParser::ISynj synj_parser(synj_path);
   synj_parser.Parse();
 

@@ -74,7 +74,7 @@ namespace SynapseParser
   {
     std::cout << std::endl << std::endl;
     std::cout << "Parsed Synj" << std::endl;
-    std::cout << "Model Name: " << this->m_ModelName << std::endl;
+    std::cout << "Model Name: \"" << this->m_ModelName << "\"" << std::endl;
     std::cout << "Algorithm: " << (this->m_Algorithm == ModelType::Linear_Regression ? "Linearregression" : "LogisticRegression") << std::endl;
     std::cout << "CSV Path: " << this->m_CSVPath << std::endl;
     std::cout << "Target: " << this->m_Target << std::endl;
