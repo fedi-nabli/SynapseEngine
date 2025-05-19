@@ -33,6 +33,8 @@ set_target_properties(ai_engine PROPERTIES
 
 # final executable
 add_executable(synapse src/main.cc)
+target_compile_features(synapse PRIVATE cxx_std_17)
+
 target_include_directories(synapse PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/includes
 )

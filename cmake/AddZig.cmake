@@ -5,7 +5,7 @@
 #############################
 
 function(add_zig_library target project_dir)
-  set(ZIG_OUT ${CMAKE_CURRENT_BINARY_DIR}/zig-out CACHE PATH "")
+  set(ZIG_OUT ${CMAKE_CURRENT_BINARY_DIR}/zig-out)
 
   file(MAKE_DIRECTORY ${ZIG_OUT}/lib)
   file(MAKE_DIRECTORY ${ZIG_OUT}/include)
