@@ -9,5 +9,7 @@
 
 
 pub mod scalar;
+pub mod vector;
 
 pub use scalar::Scalar;
+pub use vector::Vector;

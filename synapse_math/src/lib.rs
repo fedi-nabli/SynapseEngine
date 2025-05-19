@@ -8,6 +8,7 @@
 /// Last Modified: 19 May 2025
 
 pub mod math;
+pub mod error;
 
 use core::ffi::c_ulonglong;
 
@@ -18,7 +19,7 @@ pub extern "C" fn add_rust(left: c_ulonglong, right: c_ulonglong) -> c_ulonglong
 
 #[cfg(test)]
 mod tests {
-    use crate::math::{scalar, Scalar};
+    use crate::math::{scalar, Scalar, Vector};
 
     use super::*;
 
@@ -48,5 +49,35 @@ mod tests {
 
         assert_eq!(scalar::from_i32(32), 32.0);
         assert_eq!(scalar::from_usize(104), 104.0);
+    }
+
+    #[test]
+    fn vector_test() {
+        let mut zero_vec = Vector::zeroes(10);
+        let one_vec = Vector::ones(12);
+
+        assert_eq!(zero_vec.len(), 10);
+        assert_eq!(one_vec.len(), 12);
+
+        assert_eq!(zero_vec.sum(), 0.0);
+        assert_eq!(one_vec.sum(), 12.0);
+
+        match zero_vec.set(0, 9.8) {
+            Err(_) => println!("Error"),
+            Ok(()) => (),
+        }
+        assert_eq!(zero_vec.get(0).unwrap(), 9.8);
+
+        let one_vec_2 = Vector::ones(12);
+        let mut res_vec = one_vec.add(&one_vec_2).unwrap();
+        assert_eq!(res_vec.sum(), 24.0);
+        res_vec = res_vec.sub(&one_vec_2).unwrap();
+        assert_eq!(res_vec.sum(), 12.0);
+
+        res_vec = one_vec.scale(3.0);
+        assert_eq!(res_vec.sum(), 36.0);
+
+        let res = one_vec.dot(&one_vec_2).unwrap();
+        assert_eq!(res, 12.0);
     }
 }
