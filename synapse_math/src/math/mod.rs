@@ -10,6 +10,8 @@
 
 pub mod scalar;
 pub mod vector;
+pub mod matrix;
 
 pub use scalar::Scalar;
 pub use vector::Vector;
+pub use matrix::Matrix;

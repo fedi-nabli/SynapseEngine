@@ -19,7 +19,9 @@ pub extern "C" fn add_rust(left: c_ulonglong, right: c_ulonglong) -> c_ulonglong
 
 #[cfg(test)]
 mod tests {
-    use crate::math::{scalar, Scalar, Vector};
+    use crate::math::{scalar, Scalar, Vector, Matrix};
+
+    use crate::error::Error;
 
     use super::*;
 
@@ -79,5 +81,110 @@ mod tests {
 
         let res = one_vec.dot(&one_vec_2).unwrap();
         assert_eq!(res, 12.0);
+    }
+
+    #[test]
+    fn matrix_test() {
+        let zero_mat = Matrix::zeros(2, 3);
+        let one_mat = Matrix::ones(2, 3);
+
+        assert_eq!(zero_mat.shape(), (2, 3));
+        assert_eq!(one_mat.shape(), (2, 3));
+
+        assert_eq!(zero_mat.data, vec![0.0; 6]);
+        assert_eq!(one_mat.data, vec![1.0; 6]);
+
+        let mut identity_mat = Matrix::identity(3);
+        assert_eq!(identity_mat.data, vec![1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]);
+        assert_eq!(identity_mat.shape(), (3, 3));
+
+        assert_eq!(identity_mat.get(0, 0).unwrap(), 1.0);
+        assert_eq!(identity_mat.get(1, 0).unwrap(), 0.0);
+
+        identity_mat.set(0, 0, 3.6).unwrap();
+        assert_eq!(identity_mat.get(0, 0).unwrap(), 3.6);
+
+        let mut mat = Matrix::zeros(3, 3);
+        mat.set(0, 0, 1.2).unwrap();
+        mat.set(0, 1, 3.6).unwrap();
+        mat.set(0, 2, 4.6).unwrap();
+        mat.set(1, 0, 48.6).unwrap();
+        mat.set(1, 1, 46.0).unwrap();
+        mat.set(1, 2, 26.8).unwrap();
+        mat.set(2, 0, 8.6).unwrap();
+        mat.set(2, 1, 6.0).unwrap();
+        mat.set(2, 2, 2.8).unwrap();
+
+        assert_eq!(mat.data, vec![1.2, 3.6, 4.6, 48.6, 46.0, 26.8, 8.6, 6.0, 2.8]);
+        let trans_mat = mat.transpose();
+        assert_eq!(trans_mat.data, vec![1.2, 48.6, 8.6, 3.6, 46.0, 6.0, 4.6, 26.8, 2.8]);
+
+        let mat1 = Matrix::ones(2, 3);
+        let mut mat2 = Matrix::ones(3, 2);
+        mat2.set(0, 1, 2.0).unwrap();
+        mat2.set(1, 1, 2.0).unwrap();
+        mat2.set(2, 1, 2.0).unwrap();
+
+        let res_mat = mat1.mat_mul(&mat2).unwrap();
+
+        assert_eq!(res_mat.data, vec![3.0, 6.0, 3.0, 6.0]);
+
+        let mut mat3 = Matrix::zeros(2, 3);
+        mat3.set(0, 0, 1.0).unwrap();
+        mat3.set(0, 1, 2.0).unwrap();
+        mat3.set(0, 2, 3.0).unwrap();
+        mat3.set(1, 0, 4.0).unwrap();
+        mat3.set(1, 1, 5.0).unwrap();
+        mat3.set(1, 2, 6.0).unwrap();
+
+        let mut vec = Vector::zeroes(3);
+        vec.set(0, 1.0).unwrap();
+        vec.set(1, 2.0).unwrap();
+        vec.set(2, 3.0).unwrap();
+
+        let result = mat3.vec_mul(&vec).unwrap();
+        
+        assert_eq!(result.get(0), Some(14.0));
+        assert_eq!(result.get(1), Some(32.0)); 
+    }
+
+    #[test]
+    fn test_matrix_add_sub() {
+        let mut mat1 = Matrix::zeros(2, 2);
+        mat1.set(0, 0, 1.0).unwrap();
+        mat1.set(0, 1, 2.0).unwrap();
+        mat1.set(1, 0, 3.0).unwrap();
+        mat1.set(1, 1, 4.0).unwrap();
+
+        let mut mat2 = Matrix::zeros(2, 2);
+        mat2.set(0, 0, 5.0).unwrap();
+        mat2.set(0, 1, 6.0).unwrap();
+        mat2.set(1, 0, 7.0).unwrap();
+        mat2.set(1, 1, 8.0).unwrap();
+
+        // Test addition
+        let sum = mat1.add(&mat2).unwrap();
+        assert_eq!(sum.get(0, 0), Some(6.0));  // 1 + 5
+        assert_eq!(sum.get(0, 1), Some(8.0));  // 2 + 6
+        assert_eq!(sum.get(1, 0), Some(10.0)); // 3 + 7
+        assert_eq!(sum.get(1, 1), Some(12.0)); // 4 + 8
+
+        // Test subtraction
+        let diff = mat1.sub(&mat2).unwrap();
+        assert_eq!(diff.get(0, 0), Some(-4.0)); // 1 - 5
+        assert_eq!(diff.get(0, 1), Some(-4.0)); // 2 - 6
+        assert_eq!(diff.get(1, 0), Some(-4.0)); // 3 - 7
+        assert_eq!(diff.get(1, 1), Some(-4.0)); // 4 - 8
+
+        // Test dimension mismatch
+        let mat3 = Matrix::zeros(2, 3);
+        assert!(matches!(
+            mat1.add(&mat3),
+            Err(Error::MatDimensionMismatch)
+        ));
+        assert!(matches!(
+            mat1.sub(&mat3),
+            Err(Error::MatDimensionMismatch)
+        ));
     }
 }
