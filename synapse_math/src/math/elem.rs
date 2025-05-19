@@ -22,10 +22,10 @@ pub fn sqrt(x: Scalar) -> Scalar { x.sqrt() }
 pub fn abs(x: Scalar) -> Scalar { x.abs() }
 
 #[inline]
-pub fn sin(x: Scalar) -> Scalar { x.sin() }
+pub fn cos(x: Scalar) -> Scalar { x.cos() }
 
 #[inline]
-pub fn cos(x: Scalar) -> Scalar { x.cos() }
+pub fn sin(x: Scalar) -> Scalar { x.sin() }
 
 #[inline]
 pub fn tan(x: Scalar) -> Scalar { x.tan() }

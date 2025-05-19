@@ -16,3 +16,5 @@ pub mod elem;
 pub use scalar::Scalar;
 pub use vector::Vector;
 pub use matrix::Matrix;
+
+pub use elem::{exp, ln, sqrt, abs, cos, sin, tan, cosh, sinh, tanh};
