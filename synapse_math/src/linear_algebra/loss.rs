@@ -1,3 +1,12 @@
+/// linear_algebra/loss.rs - Math Engine Loss Structs
+/// 
+/// This file defines different Loss functions and
+/// their gradients for Linear Algebra
+/// 
+/// Author: Fedi Nabli
+/// Date: 20 May 2025
+/// Last Modified: 20 May 2025
+
 use crate::math::{ln, Scalar, Vector};
 use crate::error::Error;
 

@@ -1,4 +1,15 @@
-pub mod loss;
+/// linear_algebra/mod.rs - Math Engine Linear Lagebra module
+/// 
+/// This module exposes core Linear algebra functions
+/// such as Loss, Activation and Gradient
+/// 
+/// Author: Fedi Nabli
+/// Date: 20 May 2025
+/// Last Modified: 20 May 2025
 
-pub use loss::MSE;
-pub use loss::CrossEntropy;
+
+pub mod loss;
+pub mod activation;
+
+pub use loss::{MSE, CrossEntropy};
+pub use activation::{ReLU, Sigmoid, Tanh};

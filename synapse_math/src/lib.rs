@@ -21,8 +21,9 @@ pub extern "C" fn add_rust(left: c_ulonglong, right: c_ulonglong) -> c_ulonglong
 
 #[cfg(test)]
 mod tests {
+    use crate::linear_algebra::activation::Activation;
     use crate::linear_algebra::loss::Loss;
-    use crate::linear_algebra::{CrossEntropy, MSE};
+    use crate::linear_algebra::{CrossEntropy, ReLU, Sigmoid, Tanh, MSE};
     use crate::math::{ln, scalar, Matrix, Scalar, Vector};
 
     use crate::error::Error;
@@ -302,5 +303,41 @@ mod tests {
         invalid_pred.set(1, 1.0).unwrap();
         assert!(matches!(CrossEntropy::loss(&invalid_pred, &target_ce), Err(Error::InsufficientData)));
         assert!(matches!(CrossEntropy::grad(&invalid_pred, &target_ce), Err(Error::InsufficientData)));
+    }
+
+    #[test]
+    fn test_activation_functions() {
+        // Test ReLU
+        assert_eq!(ReLU::forward(-1.0), 0.0);
+        assert_eq!(ReLU::forward(0.0), 0.0);
+        assert_eq!(ReLU::forward(2.0), 2.0);
+        
+        assert_eq!(ReLU::backward(-1.0), 0.0);
+        assert_eq!(ReLU::backward(0.0), 0.0);
+        assert_eq!(ReLU::backward(2.0), 1.0);
+
+        // Test Sigmoid
+        assert!((Sigmoid::forward(0.0) - 0.5).abs() < 1e-6);
+        assert!((Sigmoid::forward(2.0) - 0.880797).abs() < 1e-6);
+        assert!((Sigmoid::forward(-2.0) - 0.119203).abs() < 1e-6);
+
+        assert!((Sigmoid::backward(0.0) - 0.25).abs() < 1e-6);
+        assert!((Sigmoid::backward(2.0) - 0.104994).abs() < 1e-6);
+        assert!((Sigmoid::backward(-2.0) - 0.104994).abs() < 1e-6);
+
+        // Test Tanh
+        assert_eq!(Tanh::forward(0.0), 0.0);
+        assert!((Tanh::forward(1.0) - 0.761594).abs() < 1e-6);
+        assert!((Tanh::forward(-1.0) + 0.761594).abs() < 1e-6);
+
+        assert_eq!(Tanh::backward(0.0), 1.0);
+        assert!((Tanh::backward(1.0) - 0.419974).abs() < 1e-6);
+        assert!((Tanh::backward(-1.0) - 0.419974).abs() < 1e-6);
+
+        // Test edge cases
+        assert!((Sigmoid::forward(10.0) - 1.0).abs() < 1e-4); // Very large input
+        assert!((Sigmoid::forward(-10.0)).abs() < 1e-4);      // Very small input
+        assert!((Tanh::forward(10.0) - 1.0).abs() < 1e-4);   // Very large input
+        assert!((Tanh::forward(-10.0) + 1.0).abs() < 1e-4);  // Very small input
     }
 }
