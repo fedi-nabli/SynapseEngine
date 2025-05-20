@@ -1,4 +1,4 @@
-/// matrix.rs - Math Engine Matrix type
+/// math/matrix.rs - Math Engine Matrix type
 /// 
 /// This file defines the Matrix structure
 /// and exposes important functionalities for

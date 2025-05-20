@@ -35,6 +35,8 @@ REQUIRED_FILES = [
   'synapse_math/src/math/mod.rs',
   'synapse_math/src/math/scalar.rs',
   'synapse_math/src/math/vector.rs',
+  'synapse_math/src/stats/mod.rs',
+  'synapse_math/src/stats/stats.rs',
   'synapse_math/src/error.rs',
   'synapse_math/src/lib.rs',
   'synapse_math/Cargo.toml',

@@ -5,9 +5,10 @@
 /// 
 /// Author: Fedi Nabli
 /// Date: 19 May 2025
-/// Last Modified: 19 May 2025
+/// Last Modified: 20 May 2025
 
 pub mod math;
+pub mod stats;
 pub mod error;
 
 use core::ffi::c_ulonglong;
@@ -22,6 +23,7 @@ mod tests {
     use crate::math::{scalar, Scalar, Vector, Matrix};
 
     use crate::error::Error;
+    use crate::stats::{correlation, covariance, mean, normalize, std_dev, variance};
 
     use super::*;
 
@@ -185,6 +187,52 @@ mod tests {
         assert!(matches!(
             mat1.sub(&mat3),
             Err(Error::MatDimensionMismatch)
+        ));
+    }
+
+    #[test]
+    fn test_stats() {
+        let mut vec1 = Vector::new(3);
+        vec1.set(0, 1.0).unwrap();
+        vec1.set(1, 2.0).unwrap();
+        vec1.set(2, 3.0).unwrap();
+        assert_eq!(mean(&vec1).unwrap(), 2.0);
+
+        assert_eq!(variance(&vec1, 0).unwrap(), 2.0/3.0);
+        assert_eq!(variance(&vec1, 1).unwrap(), 1.0);
+
+        let normalized = normalize(&vec1, 0).unwrap();
+        assert!((normalized.get(0).unwrap() + 1.224745).abs() < 1e-6);
+        assert!((normalized.get(1).unwrap()).abs() < 1e-6);
+        assert!((normalized.get(2).unwrap() - 1.224745).abs() < 1e-6);
+
+        let mut x = Vector::new(3);
+        let mut y = Vector::new(3);
+        x.set(0, 1.0).unwrap();
+        x.set(1, 2.0).unwrap();
+        x.set(2, 3.0).unwrap();
+        y.set(0, 2.0).unwrap();
+        y.set(1, 4.0).unwrap();
+        y.set(2, 6.0).unwrap();
+        assert_eq!(correlation(&x, &y, 0).unwrap(), 1.0);
+
+        let std_pop = std_dev(variance(&vec1, 0).unwrap());
+        let std_sample = std_dev(variance(&vec1, 1).unwrap());
+        assert!((std_pop - 0.816497).abs() < 1e-6);  // sqrt(2/3)
+        assert_eq!(std_sample, 1.0);
+
+        let cov_pop = covariance(&x, &y, 0).unwrap();
+        let cov_sample = covariance(&x, &y, 1).unwrap();
+        assert!((cov_pop - 1.333333333333333).abs() < 1e-6); // population covatiance
+        assert_eq!(cov_sample, 2.0);  // sample covariance
+
+        // Test covariance error cases
+        let mut z = Vector::new(2);  // different length vector
+        z.set(0, 1.0).unwrap();
+        z.set(1, 2.0).unwrap();
+        assert!(matches!(
+            covariance(&x, &z, 0),
+            Err(Error::InsufficientData)
         ));
     }
 }

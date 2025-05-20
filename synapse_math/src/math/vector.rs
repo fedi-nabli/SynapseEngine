@@ -1,4 +1,4 @@
-/// vector.rs - Math Engine Vector type
+/// math/vector.rs - Math Engine Vector type
 /// 
 /// This file defines the Vector structure
 /// and exposes important functionalities for

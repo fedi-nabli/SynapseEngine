@@ -2,7 +2,7 @@
 /// 
 /// Author: Fedi Nabli
 /// Date: 19 May 2025
-/// Last Modified: 19 May 2025
+/// Last Modified: 20 May 2025
 
 #[derive(Debug)]
 pub enum Error {
@@ -10,4 +10,5 @@ pub enum Error {
   VectorDimensionMismatch,
   MatrixIndexOutOfBounds,
   MatDimensionMismatch,
+  InsufficientData,
 }

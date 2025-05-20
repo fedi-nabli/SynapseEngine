@@ -1,4 +1,4 @@
-/// scalar.rs - Math Engine Scalar type
+/// math/scalar.rs - Math Engine Scalar type
 /// 
 /// Scalar is just a wrapper around f64 with helper
 /// functions for the type
