@@ -10,6 +10,7 @@
 pub mod math;
 pub mod stats;
 pub mod error;
+pub mod linear_algebra;
 
 use core::ffi::c_ulonglong;
 
@@ -20,7 +21,9 @@ pub extern "C" fn add_rust(left: c_ulonglong, right: c_ulonglong) -> c_ulonglong
 
 #[cfg(test)]
 mod tests {
-    use crate::math::{scalar, Scalar, Vector, Matrix};
+    use crate::linear_algebra::loss::Loss;
+    use crate::linear_algebra::{CrossEntropy, MSE};
+    use crate::math::{ln, scalar, Matrix, Scalar, Vector};
 
     use crate::error::Error;
     use crate::stats::{correlation, covariance, mean, normalize, std_dev, variance};
@@ -234,5 +237,70 @@ mod tests {
             covariance(&x, &z, 0),
             Err(Error::InsufficientData)
         ));
+    }
+
+    #[test]
+    fn test_loss_functions() {
+        // Test MSE
+        let mut pred = Vector::new(3);
+        let mut target = Vector::new(3);
+        
+        pred.set(0, 1.0).unwrap();
+        pred.set(1, 2.0).unwrap();
+        pred.set(2, 3.0).unwrap();
+        
+        target.set(0, 2.0).unwrap();
+        target.set(1, 4.0).unwrap();
+        target.set(2, 6.0).unwrap();
+        
+        // MSE = (1/3)[(1-2)² + (2-4)² + (3-6)²] = (1 + 4 + 9)/3 = 14/3
+        assert!((MSE::loss(&pred, &target).unwrap() - 14.0/3.0).abs() < 1e-6);
+        
+        let grad = MSE::grad(&pred, &target).unwrap();
+        // Gradient = (2/3)[(-1, -2, -3)]
+        assert!((grad.get(0).unwrap() + 2.0/3.0).abs() < 1e-6);
+        assert!((grad.get(1).unwrap() + 4.0/3.0).abs() < 1e-6);
+        assert!((grad.get(2).unwrap() + 2.0).abs() < 1e-6);
+
+        // Test Cross Entropy
+        let mut pred_ce = Vector::new(2);
+        let mut target_ce = Vector::new(2);
+        
+        pred_ce.set(0, 0.8).unwrap();
+        pred_ce.set(1, 0.2).unwrap();
+        
+        target_ce.set(0, 1.0).unwrap();
+        target_ce.set(1, 0.0).unwrap();
+        
+        // CE = -(1/2)(1*ln(0.8) + 0*ln(0.2)) = -ln(0.8)/2
+        let expected = -ln(0.8)/2.0;
+        assert!((CrossEntropy::loss(&pred_ce, &target_ce).unwrap() - expected).abs() < 1e-6);
+        
+        let grad_ce = CrossEntropy::grad(&pred_ce, &target_ce).unwrap();
+        // Gradient = -(1/2)[(1/0.8, 0/0.2)]
+        assert!((grad_ce.get(0).unwrap() + 0.625).abs() < 1e-6);
+        assert!((grad_ce.get(1).unwrap()).abs() < 1e-6);
+
+        // Test Error Cases
+        let v1 = Vector::new(2);
+        let v2 = Vector::new(3);
+        
+        // Test dimension mismatch
+        assert!(matches!(MSE::loss(&v1, &v2), Err(Error::VectorDimensionMismatch)));
+        assert!(matches!(MSE::grad(&v1, &v2), Err(Error::VectorDimensionMismatch)));
+        assert!(matches!(CrossEntropy::loss(&v1, &v2), Err(Error::VectorDimensionMismatch)));
+        assert!(matches!(CrossEntropy::grad(&v1, &v2), Err(Error::VectorDimensionMismatch)));
+
+        // Test empty vectors
+        let empty_vec = Vector::new(0);
+        assert!(matches!(MSE::loss(&empty_vec, &empty_vec), Err(Error::VectorDimensionMismatch)));
+        assert!(matches!(MSE::grad(&empty_vec, &empty_vec), Err(Error::VectorDimensionMismatch)));
+
+        // Test invalid inputs for cross entropy (predictions <= 0)
+        let mut invalid_pred = Vector::new(2);
+        invalid_pred.set(0, 0.0).unwrap();
+        invalid_pred.set(1, 1.0).unwrap();
+        assert!(matches!(CrossEntropy::loss(&invalid_pred, &target_ce), Err(Error::InsufficientData)));
+        assert!(matches!(CrossEntropy::grad(&invalid_pred, &target_ce), Err(Error::InsufficientData)));
     }
 }
