@@ -22,9 +22,11 @@ pub extern "C" fn add_rust(left: c_ulonglong, right: c_ulonglong) -> c_ulonglong
 #[cfg(test)]
 mod tests {
     use crate::linear_algebra::activation::Activation;
+    use crate::linear_algebra::gradient::Optimizer;
     use crate::linear_algebra::loss::Loss;
     use crate::linear_algebra::{CrossEntropy, ReLU, Sigmoid, Tanh, MSE};
     use crate::math::{ln, scalar, Matrix, Scalar, Vector};
+    use crate::linear_algebra::{SGD, Momentum, Adam};
 
     use crate::error::Error;
     use crate::stats::{correlation, covariance, mean, normalize, std_dev, variance};
@@ -339,5 +341,66 @@ mod tests {
         assert!((Sigmoid::forward(-10.0)).abs() < 1e-4);      // Very small input
         assert!((Tanh::forward(10.0) - 1.0).abs() < 1e-4);   // Very large input
         assert!((Tanh::forward(-10.0) + 1.0).abs() < 1e-4);  // Very small input
+    }
+
+    #[test]
+    fn test_optimizers() {
+        // Test function: f(x) = x^2, gradient = 2x
+        let mut params = Vector::new(1);
+        params.set(0, 2.0).unwrap();  // Start at x = 2
+
+        // Test SGD
+        {
+            let mut sgd = SGD { lr: 0.1 };
+            let mut p = params.clone();
+            
+            for _ in 0..10 {
+                let mut grad = Vector::new(1);
+                grad.set(0, 2.0 * p.get(0).unwrap()).unwrap();
+                sgd.update(&mut p, &grad).unwrap();
+            }
+            
+            assert!(p.get(0).unwrap().abs() < 1.0);
+        }
+
+        // Test Momentum
+        {
+            let mut momentum = Momentum {
+                lr: 0.1,
+                momentum: 0.9,
+                velocity: Vector::zeroes(1),
+            };
+            let mut p = params.clone();
+            
+            for _ in 0..10 {
+                let mut grad = Vector::new(1);
+                grad.set(0, 2.0 * p.get(0).unwrap()).unwrap();
+                momentum.update(&mut p, &grad).unwrap();
+            }
+            
+            assert!(p.get(0).unwrap().abs() < 0.8);
+        }
+
+        // Test Adam
+        {
+            let mut adam = Adam {
+                lr: 0.1,
+                beta1: 0.9,
+                beta2: 0.999,
+                eps: 1e-8,
+                m: Vector::zeroes(1),
+                v: Vector::zeroes(1),
+                t: 0,
+            };
+            let mut p = params.clone();
+            
+            for _ in 0..20 {
+                let mut grad = Vector::new(1);
+                grad.set(0, 2.0 * p.get(0).unwrap()).unwrap();
+                adam.update(&mut p, &grad).unwrap();
+            }
+            
+            assert!(p.get(0).unwrap().abs() < 0.5);
+        }
     }
 }

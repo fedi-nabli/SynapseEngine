@@ -12,7 +12,7 @@ use super::{scalar, Scalar};
 
 use crate::error::Error;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Vector {
   pub data: Vec<Scalar>,
 }

@@ -30,6 +30,8 @@ REQUIRED_FILES = [
   'scripts/verify_dependencies.sh',
   'scripts/verify_tool_versions.py',
   'synapse_math/include/math/synapse_math.h',
+  'synapse_math/src/linear_algebra/activation.rs',
+  'synapse_math/src/linear_algebra/gradient.rs',
   'synapse_math/src/linear_algebra/loss.rs',
   'synapse_math/src/linear_algebra/mod.rs',
   'synapse_math/src/math/elem.rs',

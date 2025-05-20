@@ -9,7 +9,9 @@
 
 
 pub mod loss;
+pub mod gradient;
 pub mod activation;
 
 pub use loss::{MSE, CrossEntropy};
+pub use gradient::{SGD, Momentum, Adam};
 pub use activation::{ReLU, Sigmoid, Tanh};
