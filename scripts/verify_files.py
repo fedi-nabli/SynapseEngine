@@ -43,6 +43,7 @@ REQUIRED_FILES = [
   'synapse_math/src/stats/stats.rs',
   'synapse_math/src/error.rs',
   'synapse_math/src/lib.rs',
+  'synapse_math/src/rand.rs',
   'synapse_math/Cargo.toml',
   'synj_parser/includes/synj.h',
   'synj_parser/src/error.zig',

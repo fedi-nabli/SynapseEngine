@@ -5,9 +5,10 @@
 /// 
 /// Author: Fedi Nabli
 /// Date: 19 May 2025
-/// Last Modified: 20 May 2025
+/// Last Modified: 21 May 2025
 
 pub mod math;
+pub mod rand;
 pub mod stats;
 pub mod error;
 pub mod linear_algebra;
@@ -29,6 +30,7 @@ mod tests {
     use crate::linear_algebra::{SGD, Momentum, Adam};
 
     use crate::error::Error;
+    use crate::rand::Random;
     use crate::stats::{correlation, covariance, mean, normalize, std_dev, variance};
 
     use super::*;
@@ -402,5 +404,26 @@ mod tests {
             
             assert!(p.get(0).unwrap().abs() < 0.5);
         }
+    }
+
+    #[test]
+    fn test_random_generation() {
+        let mut rng = Random::new(Some(42)); // Use seed for deterministic tests
+        
+        // Test uniform scalar
+        let u = rng.uniform_scalar(0.0, 1.0);
+        assert!(u >= 0.0 && u <= 1.0);
+
+        // Test normal scalar
+        let n = rng.normal_scalar(0.0, 1.0);
+        assert!(!n.is_nan() && !n.is_infinite());
+
+        // Test vector generation
+        let v = rng.uniform_vector(10, 0.0, 1.0);
+        assert_eq!(v.len(), 10);
+        
+        // Test matrix generation
+        let m = rng.normal_matrix(2, 3, 0.0, 1.0);
+        assert_eq!(m.shape(), (2, 3));
     }
 }
