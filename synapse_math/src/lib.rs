@@ -7,6 +7,7 @@
 /// Date: 19 May 2025
 /// Last Modified: 21 May 2025
 
+pub mod ffi;
 pub mod math;
 pub mod rand;
 pub mod stats;
