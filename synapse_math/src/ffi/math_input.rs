@@ -1,3 +1,12 @@
+/// ffi/math_input.rs - Math Engine FFI Input module
+/// 
+/// This file defines the input structure compatible with C
+/// and the Rust internal structure
+/// 
+/// Author: Fedi Nabli
+/// Date: 22 May 2025
+/// Last Modified: 22 May 2025
+
 use core::slice;
 
 use crate::math::{Matrix, Vector};
