@@ -41,6 +41,8 @@ REQUIRED_FILES = [
   'synapse_math/src/math/mod.rs',
   'synapse_math/src/math/scalar.rs',
   'synapse_math/src/math/vector.rs',
+  'synapse_math/src/solver/mod.rs',
+  'synapse_math/src/solver/solver_utils.rs',
   'synapse_math/src/stats/mod.rs',
   'synapse_math/src/stats/stats.rs',
   'synapse_math/src/error.rs',

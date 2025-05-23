@@ -12,6 +12,8 @@ pub mod math;
 pub mod rand;
 pub mod stats;
 pub mod error;
+pub mod models;
+pub mod solver;
 pub mod linear_algebra;
 
 use core::ffi::c_ulonglong;
