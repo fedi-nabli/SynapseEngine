@@ -33,6 +33,7 @@ mod tests {
     use crate::linear_algebra::{SGD, Momentum, Adam};
 
     use crate::error::Error;
+    use crate::models::Model;
     use crate::rand::Random;
     use crate::stats::{correlation, covariance, mean, normalize, std_dev, variance};
 
@@ -428,5 +429,184 @@ mod tests {
         // Test matrix generation
         let m = rng.normal_matrix(2, 3, 0.0, 1.0);
         assert_eq!(m.shape(), (2, 3));
+    }
+
+    #[test]
+    fn linear_regression_celsius_fahrenheit() -> Result<(), crate::error::Error> {
+        use crate::ffi::{InternalInput, ModelType};
+        use crate::math::{Matrix, Vector};
+        use crate::models::linear_regression::LinearRegression;
+        use crate::math::Scalar;
+        use crate::linear_algebra::MSE;
+
+        // 30+ points mapping Celsius → Fahrenheit
+        let celsius_values: Vec<Scalar> = vec![
+            -50.0, -40.0, -30.0, -20.0, -10.0, -9.0, -8.0, -7.0,
+            -6.0, -5.0, -4.0, -3.0, -2.0, -1.0,  0.0,  1.0,
+            2.0,   3.0,   4.0,   5.0,   6.0,   7.0,   8.0,   9.0,
+            10.0,  20.0,  30.0,  40.0,  50.0,  60.0,
+        ];
+        let fahrenheit_values: Vec<Scalar> = vec![
+            -58.0, -40.0, -22.0,  -4.0,  14.0,  15.8,  17.6,  19.4,
+            21.2,  23.0,  24.8,  26.6,  28.4,  30.2,  32.0,  33.8,
+            35.6,  37.4,  39.2,  41.0,  42.8,  44.6,  46.4,  48.2,
+            50.0,  68.0,  86.0, 104.0, 122.0, 140.0,
+        ];
+
+        // compute means
+        let count = celsius_values.len() as Scalar;
+        let mean_celsius = celsius_values.iter().sum::<Scalar>() / count;
+        let mean_fahrenheit = fahrenheit_values.iter().sum::<Scalar>() / count;
+
+        // compute standard deviations
+        let variance_celsius = celsius_values
+            .iter()
+            .map(|&x| (x - mean_celsius).powi(2))
+            .sum::<Scalar>() / count;
+        let std_celsius = variance_celsius.sqrt();
+
+        let variance_fahrenheit = fahrenheit_values
+            .iter()
+            .map(|&y| (y - mean_fahrenheit).powi(2))
+            .sum::<Scalar>() / count;
+        let std_fahrenheit = variance_fahrenheit.sqrt();
+
+        // normalize inputs and outputs
+        let normalized_celsius: Vec<Scalar> = celsius_values
+            .iter()
+            .map(|&x| (x - mean_celsius) / std_celsius)
+            .collect();
+        let normalized_fahrenheit: Vec<Scalar> = fahrenheit_values
+            .iter()
+            .map(|&y| (y - mean_fahrenheit) / std_fahrenheit)
+            .collect();
+
+        // build training matrices/vectors
+        let train_x = Matrix {
+            rows: normalized_celsius.len(),
+            cols: 1,
+            data: normalized_celsius.clone(),
+        };
+        let train_y = Vector {
+            data: normalized_fahrenheit.clone(),
+        };
+        let test_x = train_x.clone();
+        let test_y = train_y.clone();
+
+        // set up internal input
+        let input = InternalInput {
+            epochs:        1_000,
+            batch_size:    normalized_celsius.len() as u32,
+            early_stop:    1_000,
+            learning_rate: 0.1,
+            model_type:    ModelType::LinearRegression,
+            train_x,
+            train_y,
+            test_x,
+            test_y,
+        };
+
+        // train the model
+        let mut model = LinearRegression::init(&input);
+        model.train(&input)?;
+
+        // Extract and un-scale the learned weight & bias ---
+        let weight_normalized = model.weights.get(0).unwrap();
+        let bias_normalized = model.bias;
+        let learned_weight = weight_normalized * (std_fahrenheit / std_celsius);
+        let learned_bias = bias_normalized * std_fahrenheit
+            + mean_fahrenheit
+            - learned_weight * mean_celsius;
+
+        // slope should be ≈1.8, intercept ≈32.0
+        assert!(
+            (learned_weight - 1.8).abs() < 1e-2,
+            "slope ≈ 1.8, got {}",
+            learned_weight
+        );
+        assert!(
+            (learned_bias - 32.0).abs() < 5e-1,
+            "intercept ≈ 32.0, got {}",
+            learned_bias
+        );
+
+        // predict on normalized scale, then un-scale
+        let predictions_normalized = model.predict(input.test_x)?;
+        let unscaled_predictions: Vec<Scalar> = predictions_normalized
+            .data
+            .iter()
+            .map(|&y_n| y_n * std_fahrenheit + mean_fahrenheit)
+            .collect();
+        let predictions_vector = Vector {
+            data: unscaled_predictions,
+        };
+
+        // compute final MSE on original Fahrenheit values
+        let final_mse = MSE::loss(
+            &predictions_vector,
+            &Vector { data: fahrenheit_values.clone() },
+        )?;
+        assert!(final_mse < 1e-1, "final MSE too large: {}", final_mse);
+
+        Ok(())
+    }
+
+    #[test]
+    fn linear_regression_two_features() -> Result<(), crate::error::Error> {
+        use crate::ffi::{InternalInput, ModelType};
+        use crate::math::{Matrix, Vector};
+        use crate::models::linear_regression::LinearRegression;
+        use crate::math::Scalar;
+        use crate::linear_algebra::MSE;
+
+        // y = 2·x1 + 3·x2 + 1 over 5 points
+        let x1 = vec![1.0, 2.0, 3.0, 4.0, 5.0];
+        let x2 = vec![5.0, 4.0, 3.0, 2.0, 1.0];
+        let mut data = Vec::with_capacity(x1.len() * 2);
+        for i in 0..x1.len() {
+            data.push(x1[i]);
+            data.push(x2[i]);
+        }
+
+        let y: Vec<Scalar> = x1.iter()
+            .zip(x2.iter())
+            .map(|(&a, &b)| 2.0*a + 3.0*b + 1.0)
+            .collect();
+
+        let n = x1.len();
+        let train_x = Matrix { rows: n, cols: 2, data: data.clone() };
+        let train_y = Vector { data: y.clone() };
+        let test_x  = train_x.clone();
+        let test_y  = train_y.clone();
+
+        let input = InternalInput {
+            epochs:        1_000,
+            batch_size:    n as u32,
+            early_stop:    1_000,
+            learning_rate: 1e-2,
+            model_type:    ModelType::LinearRegression,
+            train_x,
+            train_y,
+            test_x,
+            test_y,
+        };
+
+        let mut model = LinearRegression::init(&input);
+        model.train(&input)?;
+
+        let w1 = model.weights.get(0).unwrap();
+        let w2 = model.weights.get(1).unwrap();
+        let b  = model.bias;
+
+        // relax to ±0.05 on slopes
+        assert!((w1 - 2.0).abs() < 5e-2, "w1 ≈ 2.0, got {}", w1);
+        assert!((w2 - 3.0).abs() < 5e-2, "w2 ≈ 3.0, got {}", w2);
+        assert!((b  - 1.0).abs() < 2e-1, "b  ≈ 1.0, got {}", b);
+
+        let preds = model.predict(input.test_x.clone())?;
+        let mse   = MSE::loss(&preds, &input.test_y)?;
+        assert!(mse < 1e-2, "final MSE too large: {}", mse);
+
+        Ok(())
     }
 }

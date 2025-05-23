@@ -5,7 +5,7 @@
 /// 
 /// Author: Fedi Nabli
 /// Date: 22 May 2025
-/// Last Modified: 22 May 2025
+/// Last Modified: 23 May 2025
 
 use core::slice;
 
@@ -36,6 +36,7 @@ pub struct MathInput {
   pub test_target: *const f64,
 }
 
+#[derive(Debug, Clone)]
 pub struct InternalInput {
   pub epochs: u32,
   pub batch_size: u32,

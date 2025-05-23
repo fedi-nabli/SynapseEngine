@@ -6,12 +6,13 @@
 /// 
 /// Author: Fedi Nabli
 /// Date: 19 May 2025
-/// Last Modified: 19 May 2025
+/// Last Modified: 23 May 2025
 
 use super::{scalar, Scalar, Vector};
 
 use crate::error::Error;
 
+#[derive(Debug, Clone)]
 pub struct Matrix {
   pub rows: usize,
   pub cols: usize,
