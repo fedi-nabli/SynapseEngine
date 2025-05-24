@@ -29,7 +29,7 @@ REQUIRED_FILES = [
   'scripts/cloc.sh',
   'scripts/verify_dependencies.sh',
   'scripts/verify_tool_versions.py',
-  'synapse_math/include/math/synapse_math.h',
+  'synapse_math/include/math/synapse_math_input.h',
   'synapse_math/src/ffi/math_input.rs',
   'synapse_math/src/ffi/mod.rs',
   'synapse_math/src/linear_algebra/activation.rs',
